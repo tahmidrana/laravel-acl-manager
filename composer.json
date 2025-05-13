@@ -1,0 +1,35 @@
+{
+    "name": "tahmid/acl-manager",
+    "description": "ACL Manager for Laravel (for appinion internal projects)",
+    "type": "library",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tahmidur Rahman",
+            "email": "tahmidrana@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "illuminate/support": "^10.0|^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tahmid\\AclManager\\": "src/"
+        }
+    },
+    "autoload-dev": {},
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tahmid\\AclManager\\AclManagerServiceProvider"
+            ],
+            "aliases": {
+                "Acl": "Tahmid\\AclManager\\Facades\\Acl"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
