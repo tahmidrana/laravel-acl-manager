@@ -1,6 +1,7 @@
 @extends('acl::layouts.admin')
 
 @section('content')
+    
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3">Roles</h1>
@@ -9,42 +10,39 @@
         </button>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Title</th>
-                    <th>Slug</th>
-                    <th>Permissions Count</th>
-                    <th>Menu Count</th>
-                    <th>Active</th>
-                    <th class="text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($roles as $role)
+    @if ($roles->count())
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
                     <tr>
-                        <td>{{ $role->title }}</td>
-                        <td>{{ $role->slug }}</td>
-                        <td>{{ $role->permissions()->count() }}</td>
-                        <td>{{ $role->menus()->count() }}</td>
-                        <td>{{ $role->is_active ? 'Yes' : 'No' }}</td>
-                        <td class="text-center">
-                            <a href="" class="btn btn-sm btn-warning">Edit</a>
-                            <!-- You can add delete logic here -->
-
-                            <form action="{{ route('acl.roles.destroy', ['role' => $role->id]) }}" method="POST" id="delete_role_form_{{ $role->id }}" class="d-nones">
-                                @csrf
-                                @method('DELETE')
-                                <input type="submit" name="" id="" class="btn btn-sm btn-danger" value="Delete" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this role?')) { document.getElementById('delete_role_form_{{ $role->id }}').submit(); }">
-                            </form>
-                        </td>
+                        <th>Title</th>
+                        <th>Slug</th>
+                        <th>Permissions Count</th>
+                        <th>Menu Count</th>
+                        <th>Active</th>
+                        <th class="text-center">Actions</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
+                </thead>
+                <tbody>
+                    @foreach ($roles as $role)
+                        <tr>
+                            <td>{{ $role->title }}</td>
+                            <td>{{ $role->slug }}</td>
+                            <td>{{ $role->permissions()->count() }}</td>
+                            <td>{{ $role->menus()->count() }}</td>
+                            <td>{{ $role->is_active ? 'Yes' : 'No' }}</td>
+                            <td class="text-center">
+                                <a href="" class="btn btn-sm btn-warning">Edit</a>
+                                <!-- You can add delete logic here -->
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @else
+        <p>No roles found.</p>
+    @endif
 
     <!-- Create Role Modal -->
     <div class="modal fade" id="createRoleModal" tabindex="-1" aria-labelledby="createRoleModalLabel" aria-hidden="true">

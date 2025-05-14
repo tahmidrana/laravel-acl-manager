@@ -17,9 +17,9 @@
 
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="{{ route('roles.index') }}">Roles</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('permissions.index') }}">Permissions</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('menus.index') }}">Menus</a></li>
+                    <li class="nav-item"><a class="nav-link {{ request()->routeIs('acl.roles.*') ? 'active' : '' }}" href="{{ route('acl.roles.index') }}">Roles</a></li>
+                    <li class="nav-item"><a class="nav-link {{ request()->routeIs('acl.permissions.*') ? 'active' : '' }}" href="{{ route('acl.permissions.index') }}">Permissions</a></li>
+                    <li class="nav-item"><a class="nav-link {{ request()->routeIs('acl.menus.*') ? 'active' : '' }}" href="{{ route('acl.menus.index') }}">Menus</a></li>
                 </ul>
 
                 <ul class="navbar-nav ms-auto">
@@ -40,6 +40,8 @@
     </nav>
 
     <main class="container">
+        @include('acl::components.alerts')
+
         @yield('content')
     </main>
 

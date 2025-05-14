@@ -1,7 +1,11 @@
 ## Laravel ACL Manager package v0.1
 
 ### Installation:
-1. Add this code on User model:
+1. Install using:
+```
+$ composer require tahmid/acl-manager
+```
+2. Add this code on `User` model:
 
 ```
 use Tahmid\AclManager\Models\Role;
@@ -16,12 +20,30 @@ public function roles()
 public function hasPermission(string $slug): bool
 {
     return $this->roles()
-        ->whereHas('permissions', fn($q) => $q->where('slug', $slug))
+        ->whereHas('permissions', fn($q) => $q->where('slug', $slug)->orWhere('name', $slug))
         ->exists();
 }
 ```
 
+3. Publish Assets:
+```
+$ php artisan vendor:publish --tag=acl-manager-config
+```
+4. Run migrations:
+```
+$ php artisan migrate
+```
+
 ### Usage:
+* Change configs if required:
+```
+// config/acl.php
+
+return [
+    'dashboard_route' => '/dashboard',
+    'superuser_column' => 'is_superuser',
+];
+```
 
 * In Controller:
 ```

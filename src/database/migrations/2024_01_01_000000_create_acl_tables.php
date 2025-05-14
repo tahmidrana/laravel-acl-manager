@@ -30,6 +30,7 @@ return new class extends Migration {
             $table->increments('id');
             $table->string('title', 150);
             $table->string('slug', 150)->unique()->nullable();
+            $table->string('remarks')->nullable();
             $table->boolean('is_active')->default(true);
 
             $table->softDeletes();

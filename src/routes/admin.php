@@ -8,6 +8,7 @@ use Tahmid\AclManager\Http\Controllers\Admin\RoleController;
 
 Route::middleware(Config::get('acl.middleware', ['web', 'auth', 'is_superuser']))
     ->prefix('acl-manager')
+    ->name('acl.')
     ->group(function () {
         Route::resource('roles', RoleController::class);
         Route::resource('permissions', PermissionController::class);
