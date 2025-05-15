@@ -5,9 +5,14 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3">Permissions</h1>
-        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createRoleModal">
-            Add Permission
-        </button>
+        <div class="">
+            <a href="{{ route('acl.permissions.sync-permissions') }}" class="btn btn-sm btn-secondary" onclick="return confirm('Are you sure you want to sync permissions? This will overwrite existing permissions.');">
+                Sync Permissions
+            </a>
+            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createRoleModal">
+                Add Permission
+            </button>
+        </div>
     </div>
 
 

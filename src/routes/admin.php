@@ -14,5 +14,6 @@ Route::middleware(Config::get('acl.middleware', ['web', 'auth', 'is_superuser'])
         Route::put('roles/{role}/save_role_menus', [RoleController::class, 'save_role_menus'])->name('roles.save-role-menus');
         Route::put('roles/{role}/save_role_permissions', [RoleController::class, 'save_role_permissions'])->name('roles.save-role-permissions');
         Route::resource('permissions', PermissionController::class)->only('index', 'store', 'update', 'destroy');
+        Route::get('permissions/sync-permissions', [PermissionController::class, 'syncPermissions'])->name('permissions.sync-permissions');
         Route::resource('menus', MenuController::class)->only('index', 'store', 'update', 'destroy');
     });
