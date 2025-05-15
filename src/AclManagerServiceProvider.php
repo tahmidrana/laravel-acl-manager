@@ -5,6 +5,7 @@ namespace Tahmid\AclManager;
 use Illuminate\Support\ServiceProvider;
 use Tahmid\AclManager\Http\Middleware\IsSuperuser;
 use Illuminate\Support\Facades\Blade;
+use Tahmid\AclManager\Http\Middleware\RolePermissionCheck;
 
 class AclManagerServiceProvider extends ServiceProvider
 {
@@ -40,5 +41,6 @@ class AclManagerServiceProvider extends ServiceProvider
         $router = $this->app['router'];
 
         $router->aliasMiddleware('is_superuser', IsSuperuser::class);
+        $router->aliasMiddleware('role_permission_check', RolePermissionCheck::class);
     }
 }

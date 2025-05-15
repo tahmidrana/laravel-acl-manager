@@ -68,3 +68,12 @@ or
     <a href="/admin">Admin Panel</a>
 @endacl
 ```
+
+* In routes use below middleware:
+```
+// routes/web.php
+
+Route::middleware('role_permission_check')->group(function () {
+    //
+});
+```
