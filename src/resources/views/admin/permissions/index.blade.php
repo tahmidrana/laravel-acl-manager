@@ -34,14 +34,14 @@
                         <td>{{ $perm->slug }}</td>
                         <td>{{ $perm->controller_name ?? '-' }}</td>
                         <td>{{ $perm->description ?? '-' }}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#updatePermModal_{{ $perm->id }}">Edit</button>
+                        <td class="d-flex gap-1 justify-content-center">
+                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#updatePermModal_{{ $perm->id }}"><i class="bi bi-pencil"></i></button>
 
                             <form action="{{ route('acl.permissions.destroy', ['permission' => $perm->id]) }}" method="POST" id="delete_perm_form_{{ $perm->id }}">
                                 @csrf
                                 @method('DELETE')
-                                <input type="submit" name="" id="" class="btn btn-sm btn-danger" value="Delete"
-                                    onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this permission?')) { document.getElementById('delete_perm_form_{{ $perm->id }}').submit(); }">
+                                <button type="submit" name="" id="" class="btn btn-sm btn-danger" value="Delete"
+                                    onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this permission?')) { document.getElementById('delete_perm_form_{{ $perm->id }}').submit(); }"><i class="bi bi-trash"></i></button>
                             </form>
                         </td>
                     </tr>

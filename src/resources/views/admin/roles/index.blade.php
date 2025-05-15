@@ -22,25 +22,64 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($roles as $role)
+                @forelse ($roles as $role)
                     <tr>
                         <td>{{ $role->title }}</td>
                         <td>{{ $role->slug }}</td>
                         <td>{{ $role->permissions()->count() }}</td>
                         <td>{{ $role->menus()->count() }}</td>
                         <td>{{ $role->is_active ? 'Yes' : 'No' }}</td>
-                        <td class="text-center">
-                            <a href="" class="btn btn-sm btn-warning">Edit</a>
-                            <!-- You can add delete logic here -->
+                        <td class="d-flex gap-1 justify-content-center">
+                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#updateModal_{{ $role->id }}"><i class="bi bi-pencil"></i></button>
 
                             <form action="{{ route('acl.roles.destroy', ['role' => $role->id]) }}" method="POST" id="delete_role_form_{{ $role->id }}" class="d-nones">
                                 @csrf
                                 @method('DELETE')
-                                <input type="submit" name="" id="" class="btn btn-sm btn-danger" value="Delete" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this role?')) { document.getElementById('delete_role_form_{{ $role->id }}').submit(); }">
+                                <button type="submit" name="" id="" class="btn btn-sm btn-danger" value="Delete" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this role?')) { document.getElementById('delete_role_form_{{ $role->id }}').submit(); }"><i class="bi bi-trash"></i></button>
                             </form>
                         </td>
                     </tr>
-                @endforeach
+
+                    <div class="modal fade" id="updateModal_{{ $role->id }}" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <form method="POST" action="{{ route('acl.roles.update', ['role'=> $role->id]) }}">
+                                @csrf
+                                @method('PUT')
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="updateModalLabel">Update Role</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="title_{{ $role->id }}" class="form-label">Role Title <span class="text-danger">*</span></label>
+                                            <input type="text" name="title" id="title_{{ $role->id }}" value="{{ $role->title }}" class="form-control" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="remarks_{{ $role->id }}" class="form-label">Remarks</label>
+                                            <input type="text" name="remarks" id="remarks_{{ $role->id }}" value="{{ $role->remarks }}" class="form-control">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="is_active_{{ $role->id }}" class="form-label">Is Active <span class="text-danger">*</span></label>
+                                            <select name="is_active" id="is_active_{{ $role->id }}" class="form-select" required>
+                                                <option value="1" {{ $role->is_active == 1 ? 'selected' : '' }}>Yes</option>
+                                                <option value="0" {{ $role->is_active == 0 ? 'selected' : '' }}>No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-success">Create Role</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center">No roles found.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
