@@ -3,6 +3,9 @@ namespace Tahmid\AclManager\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
+use Tahmid\AclManager\Models\Menu;
+use Tahmid\AclManager\Models\Permission;
 use Tahmid\AclManager\Models\Role;
 
 class RoleController extends Controller
@@ -46,5 +49,67 @@ class RoleController extends Controller
         $role->delete();
         return back()->with('success', 'Role deleted successfully.');
     }
+
+    public function show(Role $role)
+    {
+        $menus = Menu::query()
+            ->with('sub_menus')
+            ->where('is_active', 1)
+            ->oldest('menu_order')
+            ->get();
+
+        $permissions = Permission::latest('id')->get()->groupBy('controller_name');
+
+        $user_type_menus = DB::table('menu_role')
+            ->where('role_id', $role->id)
+            ->select('menu_id')
+            ->get()
+            ->pluck('menu_id');
+
+        $user_type_permissions = DB::table('permission_role')
+            ->where('role_id', $role->id)
+            ->select('permission_id')
+            ->get()
+            ->pluck('permission_id');
+
+        return view('acl::admin.roles.show', compact('role', 'menus', 'permissions', 'user_type_menus', 'user_type_permissions'));
+    }
+
+    public function save_role_menus(Request $request, Role $role)
+    {
+        $request->validate([
+            'role_menus' => 'nullable|array',
+            'role_menus.*' => 'integer|distinct|exists:menus,id',
+        ]);
+
+        try {
+            $role->menus()->sync($request->role_menus);
+            session()->flash('success', 'Success! Successfully Updated!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Oops! Something went wrong!');
+        }
+
+        return back();
+    }
+
+    public function save_role_permissions(Request $request, Role $role)
+    {
+        $request->validate([
+            'role_permissions' => 'nullable|array',
+            'role_permissions.*' => 'integer|distinct|exists:permissions,id',
+        ]);
+
+        try {
+            $role->permissions()->sync($request->role_permissions);
+
+            session()->flash('success', 'Success! Successfully Updated!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Oops! Something went wrong!');
+        }
+
+        return back();
+    }
+
+
 
 }

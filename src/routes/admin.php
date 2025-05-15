@@ -10,7 +10,9 @@ Route::middleware(Config::get('acl.middleware', ['web', 'auth', 'is_superuser'])
     ->prefix('acl-manager')
     ->name('acl.')
     ->group(function () {
-        Route::resource('roles', RoleController::class);
-        Route::resource('permissions', PermissionController::class);
-        Route::resource('menus', MenuController::class);
+        Route::resource('roles', RoleController::class)->only('index', 'show', 'store', 'update', 'destroy');
+        Route::put('roles/{role}/save_role_menus', [RoleController::class, 'save_role_menus'])->name('roles.save-role-menus');
+        Route::put('roles/{role}/save_role_permissions', [RoleController::class, 'save_role_permissions'])->name('roles.save-role-permissions');
+        Route::resource('permissions', PermissionController::class)->only('index', 'store', 'update', 'destroy');
+        Route::resource('menus', MenuController::class)->only('index', 'store', 'update', 'destroy');
     });

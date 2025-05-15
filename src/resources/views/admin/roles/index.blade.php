@@ -30,12 +30,15 @@
                         <td>{{ $role->menus()->count() }}</td>
                         <td>{{ $role->is_active ? 'Yes' : 'No' }}</td>
                         <td class="d-flex gap-1 justify-content-center">
-                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#updateModal_{{ $role->id }}"><i class="bi bi-pencil"></i></button>
+                            <a href="{{ route('acl.roles.show', ['role'=> $role->id]) }}" class="btn btn-sm btn-info" title="Config"><i class="bi bi-gear"></i></a>
+
+                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" title="Edit"
+                                data-bs-target="#updateModal_{{ $role->id }}"><i class="bi bi-pencil"></i></button>
 
                             <form action="{{ route('acl.roles.destroy', ['role' => $role->id]) }}" method="POST" id="delete_role_form_{{ $role->id }}" class="d-nones">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" name="" id="" class="btn btn-sm btn-danger" value="Delete" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this role?')) { document.getElementById('delete_role_form_{{ $role->id }}').submit(); }"><i class="bi bi-trash"></i></button>
+                                <button type="submit" name="" id="" class="btn btn-sm btn-danger" title="Delete" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this role?')) { document.getElementById('delete_role_form_{{ $role->id }}').submit(); }"><i class="bi bi-trash"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -69,7 +72,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-success">Create Role</button>
+                                        <button type="submit" class="btn btn-success">Update Role</button>
                                     </div>
                                 </div>
                             </form>

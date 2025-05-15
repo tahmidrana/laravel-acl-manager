@@ -89,8 +89,5 @@ class MenuController extends Controller
             return back()->withError($e->getMessage());
         }
     }
-
-
-    // Add store, edit, update, destroy...
 }
 
