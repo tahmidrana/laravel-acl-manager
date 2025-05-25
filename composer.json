@@ -19,7 +19,14 @@
             "Tahmid\\AclManager\\": "src/"
         }
     },
-    "autoload-dev": {},
+    "autoload-dev": {
+        "psr-4": {
+            "AclManager\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0"
+    },
     "extra": {
         "laravel": {
             "providers": [
