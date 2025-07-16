@@ -5,7 +5,17 @@
 ```
 $ composer require tahmid/acl-manager
 ```
-2. Add this code on `User` model:
+
+2. Publish Assets:
+```
+$ php artisan vendor:publish --tag=acl-manager-config
+```
+3. Run migrations:
+```
+$ php artisan migrate
+```
+
+4. Add this code on `User` model:
 
 ```
 use Tahmid\AclManager\Models\Role;
@@ -23,15 +33,6 @@ public function hasPermission(string $slug): bool
         ->whereHas('permissions', fn($q) => $q->where('slug', $slug)->orWhere('name', $slug))
         ->exists();
 }
-```
-
-3. Publish Assets:
-```
-$ php artisan vendor:publish --tag=acl-manager-config
-```
-4. Run migrations:
-```
-$ php artisan migrate
 ```
 
 ### Usage:
