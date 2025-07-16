@@ -15,8 +15,12 @@ class RolePermissionCheck
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
-        $action = \Route::current()->action['controller'];
+        // $user = $request->user();
+        $action = \Route::current()->action['controller'] ?? null;
+        if (! \Acl::can($action_name)) {
+            abort(404, 'Controller not found');
+        }
+
         $action_name = explode('Controllers\\', $action)[1];
         // if (! $user->hasPermission($action_name)) {
         if (! \Acl::can($action_name)) {
