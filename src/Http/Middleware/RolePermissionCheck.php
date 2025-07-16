@@ -18,7 +18,7 @@ class RolePermissionCheck
         // $user = $request->user();
         $action = \Route::current()->action['controller'] ?? null;
         if (! \Acl::can($action_name)) {
-            abort(404, 'Controller not found');
+            abort(404, 'Controller not found for this route');
         }
 
         $action_name = explode('Controllers\\', $action)[1];
