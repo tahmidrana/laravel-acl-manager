@@ -2,6 +2,52 @@
 
 @section('content')
 
+    @if (count($permissions_not_exist))
+    <div class="mb-3">
+        <div class="alert alert-danger">
+            <strong class="mb-2">These permission files doesn't exists:</strong> <br>
+            <ul>
+                @foreach ($permissions_not_exist as $p)
+                <li>
+                    <span class="text-dark">App\Http\Controllers\{{ $p->controller_name }}</span>
+                    <button type="button" class="btn btn-light-danger btn-sm ms-2" onclick="confirmDelete('notExistsPermDelete_{{ $p->id }}')" title="Delete">
+                        <i class="fa fa-trash-alt"></i>
+                        <form method="POST" action="{{ route('permissions.destroy-not-exists', ['permission' => $p->id]) }}"
+                            id="notExistsPermDelete_{{ $p->id }}">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                    </button>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+    @endif
+
+    @if (count($permissions_method_not_exist))
+        <div class="mb-3">
+            <div class="alert alert-danger">
+                <strong class="mb-2">These controller method doesn't exists:</strong> <br>
+                <ul>
+                    @foreach ($permissions_method_not_exist as $p)
+                    <li>
+                        <span class="text-dark">App\Http\Controllers\{{ $p->name }}</span>
+                        <button type="button" class="btn btn-light-danger btn-sm ms-2" onclick="confirmDelete('notExistsPermDelete_{{ $p->id }}')" title="Delete">
+                            <i class="fa fa-trash-alt"></i>
+                            <form method="POST" action="{{ route('permissions.destroy-not-exists', ['permission' => $p->id]) }}"
+                                id="notExistsPermDelete_{{ $p->id }}">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+                        </button>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3">Permissions</h1>
