@@ -2,7 +2,7 @@
     "name": "tahmid/laravel-acl-manager",
     "description": "ACL Manager for Laravel (for appinion internal projects)",
     "type": "library",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "license": "MIT",
     "authors": [
         {
