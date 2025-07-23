@@ -6,6 +6,7 @@ use App\Attributes\PermissionAttr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Tahmid\AclManager\Models\Permission;
 use ReflectionMethod;
 
@@ -205,6 +206,21 @@ class PermissionController extends Controller
         }
 
         return back()->withSuccess('Controller permission synced successfully');
+    }
+
+    public function destroy_not_exists(Permission $permission)
+    {
+        try {
+            DB::transaction(function () use ($permission) {
+                DB::table('permission_role')->where('permission_id', $permission->id)->delete();
+
+                $permission->forceDelete();
+            });
+
+            return back()->withSuccess('Permission deleted successfully');
+        } catch (\Exception $e) {
+            return back()->withError('Permission delete failed');
+        }
     }
 
 }

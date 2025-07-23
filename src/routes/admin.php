@@ -14,6 +14,7 @@ Route::middleware(Config::get('acl.middleware', ['web', 'auth', 'is_superuser'])
         Route::put('roles/{role}/save_role_menus', [RoleController::class, 'save_role_menus'])->name('roles.save-role-menus');
         Route::put('roles/{role}/save_role_permissions', [RoleController::class, 'save_role_permissions'])->name('roles.save-role-permissions');
         Route::resource('permissions', PermissionController::class)->only('index', 'store', 'update', 'destroy');
+        Route::delete('permissions/{permission}/destroy-not-exists', [PermissionController::class, 'destroy_not_exists'])->name('permissions.destroy-not-exists');
         Route::get('permissions/sync-permissions', [PermissionController::class, 'syncPermissions'])->name('permissions.sync-permissions');
         Route::get('sync-controller-permissions/{permission}', [PermissionController::class, 'sync_controller_permissions'])->name('permissions.sync-controller-permissions');
         Route::resource('menus', MenuController::class)->only('index', 'store', 'update', 'destroy');
