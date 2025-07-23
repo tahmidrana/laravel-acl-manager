@@ -12,7 +12,7 @@
                     <span class="text-dark">App\Http\Controllers\{{ $p->controller_name }}</span>
                     <button type="button" class="btn btn-light-danger btn-sm ms-2" onclick="confirmDelete('notExistsPermDelete_{{ $p->id }}')" title="Delete">
                         <i class="fa fa-trash-alt"></i>
-                        <form method="POST" action="{{ route('permissions.destroy-not-exists', ['permission' => $p->id]) }}"
+                        <form method="POST" action="{{ route('acl.permissions.destroy-not-exists', ['permission' => $p->id]) }}"
                             id="notExistsPermDelete_{{ $p->id }}">
                             @csrf
                             @method('DELETE')
@@ -35,7 +35,7 @@
                         <span class="text-dark">App\Http\Controllers\{{ $p->name }}</span>
                         <button type="button" class="btn btn-light-danger btn-sm ms-2" onclick="confirmDelete('notExistsPermDelete_{{ $p->id }}')" title="Delete">
                             <i class="fa fa-trash-alt"></i>
-                            <form method="POST" action="{{ route('permissions.destroy-not-exists', ['permission' => $p->id]) }}"
+                            <form method="POST" action="{{ route('acl.permissions.destroy-not-exists', ['permission' => $p->id]) }}"
                                 id="notExistsPermDelete_{{ $p->id }}">
                                 @csrf
                                 @method('DELETE')
