@@ -5,7 +5,17 @@
 ```
 $ composer require tahmid/acl-manager
 ```
-2. Add this code on `User` model:
+
+2. Publish Assets:
+```
+$ php artisan vendor:publish --tag=acl-manager-config
+```
+3. Run migrations:
+```
+$ php artisan migrate
+```
+
+4. Add this code on `User` model:
 
 ```
 use Tahmid\AclManager\Traits\AclManagerPermission;
@@ -16,15 +26,6 @@ class User extends Authenticatable {
     ....
     ....
 }
-```
-
-3. Publish Assets:
-```
-$ php artisan vendor:publish --tag=acl-manager-config
-```
-4. Run migrations:
-```
-$ php artisan migrate
 ```
 
 ### Usage:

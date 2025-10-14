@@ -6,6 +6,7 @@ use Tahmid\AclManager\Attributes\PermissionAttr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Tahmid\AclManager\Models\Permission;
 use ReflectionMethod;
 
@@ -19,7 +20,36 @@ class PermissionController extends Controller
                     ->orWhere('slug', 'like', '%' . request('search') . '%');
             })
             ->paginate(30);
-        return view('acl::admin.permissions.index', compact('permissions'));
+
+        $permissions_not_exist = [];
+        $permissions_method_not_exist = [];
+        foreach ($permissions as $permission) {
+            $file_path = str_replace('\\', '/', $permission->controller);
+            $file_path = base_path("app/Http/Controllers/{$file_path}.php");
+            if (! file_exists($file_path)) {
+                $permissions_not_exist[] = $permission;
+
+                continue;
+            }
+
+            $controller_name = "App\\Http\\Controllers\\{$permission->controller}";
+            if (! class_exists($controller_name)) {
+                $permissions_not_exist[] = $permission;
+
+                continue;
+            }
+
+            // check if controller has the method
+            $method_name = explode('@', $permission->name)[1] ?? null;
+            if ($method_name) {
+                $reflection = new \ReflectionClass($controller_name);
+                if (! $reflection->hasMethod($method_name)) {
+                    $permissions_method_not_exist[] = $permission; // method does not exist in the controller
+                }
+            }
+        }
+
+        return view('acl::admin.permissions.index', compact('permissions', 'permissions_not_exist', 'permissions_method_not_exist'));
     }
 
     public function store(Request $request)
@@ -73,7 +103,6 @@ class PermissionController extends Controller
                     $method_name = explode('@', $action_name)[1] ?? null;
 
                     $class_name = explode('@', $action_name)[0];
-
                     if (! class_exists($class_name)) {
                         continue;
                     }
@@ -167,7 +196,6 @@ class PermissionController extends Controller
                 $perm->update([
                     'description' => $description,
                 ]);
-
             } else {
                 $slug = Str::replace('\\', ':', "{$controller_name}@{$method_name}");
                 $slug = Str::snake($slug);
