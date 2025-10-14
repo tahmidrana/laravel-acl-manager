@@ -24,7 +24,6 @@ class AclManagerServiceProvider extends ServiceProvider
             return \Acl::can($permission);
         });
 
-
         $this->registerMiddleware();
     }
 

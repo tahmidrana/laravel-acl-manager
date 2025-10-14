@@ -1,15 +1,11 @@
 <?php
 
 namespace Tahmid\AclManager\Helpers;
-
-use Illuminate\Support\Facades\Auth;
-use Tahmid\AclManager\Models\Permission;
-
 class AccessControl
 {
-    public function hasPermission($permissionSlug, $user = null)
+    public function hasPermission(string $permissionSlug, $user = null)
     {
-        $user = $user ?: Auth::user();
+        $user = $user ?: auth()->user();
 
         if (!$user) return false;
 
@@ -17,17 +13,18 @@ class AccessControl
             return true;
         }
 
-        return $user->roles()
-            ->wherePivot('is_active', true)
-            ->whereHas('permissions', function ($q) use ($permissionSlug) {
-                $q->where('slug', $permissionSlug)
-                    ->orWhere('name', $permissionSlug);
-            })->exists();
+        return method_exists($user, 'hasPermission')
+            ? $user->hasPermission($permissionSlug)
+            : false;
     }
 
-    public function roleHasPermission($roleSlug, $permissionSlug)
+    public function roleHasPermission(string $roleSlug, string $permissionSlug)
     {
+        $roleSlug = strtolower($roleSlug);
+        $permissionSlug = strtolower($permissionSlug);
+
         return \Tahmid\AclManager\Models\Role::where('slug', $roleSlug)
+            ->wherePivot('is_active', true)
             ->whereHas('permissions', function ($q) use ($permissionSlug) {
                 $q->where('slug', $permissionSlug)
                     ->orWhere('name', $permissionSlug);
@@ -38,9 +35,7 @@ class AccessControl
     {
         $user = $user ?: auth()->user();
 
-        if (!$user) {
-            return false;
-        }
+        if (!$user) return false;
 
         // Check superuser column
         $superuserColumn = config('acl.superuser_column', 'is_superuser');

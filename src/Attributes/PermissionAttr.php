@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Attributes;
+namespace Tahmid\AclManager\Attributes;
 
 use Attribute;
 

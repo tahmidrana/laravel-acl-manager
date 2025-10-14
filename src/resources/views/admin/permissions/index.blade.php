@@ -2,7 +2,6 @@
 
 @section('content')
 
-
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3">Permissions</h1>
         <div class="">
@@ -38,7 +37,13 @@
                         <td>{{ $perm->name }}</td>
                         <td>{{ $perm->slug }}</td>
                         <td>{{ $perm->controller_name ?? '-' }}</td>
-                        <td>{{ $perm->description ?? '-' }}</td>
+                        <td>
+                            @if ($perm->description)
+                                {{ $perm->description }}
+                            @else
+                                <a href="{{ route('acl.permissions.sync-controller-permissions', ['permission'=> $perm->id]) }}" onclick="return confirm('Are you sure want to proceed?')" title="Resync this controller methods" ><i class="bi bi-arrow-repeat"></i></a>
+                            @endif
+                        </td>
                         <td class="d-flex gap-1 justify-content-center">
                             <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#updatePermModal_{{ $perm->id }}"><i class="bi bi-pencil"></i></button>
 

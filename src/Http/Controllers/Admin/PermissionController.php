@@ -2,7 +2,7 @@
 
 namespace Tahmid\AclManager\Http\Controllers\Admin;
 
-use App\Attributes\PermissionAttr;
+use Tahmid\AclManager\Attributes\PermissionAttr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -63,6 +63,7 @@ class PermissionController extends Controller
         $saved_permissions = Permission::withTrashed()->get()->pluck('name')->toArray();
         try {
             $permissions = [];
+
             foreach (\Route::getRoutes()->getRoutes() as $route) {
                 $action = $route->getAction();
                 if (array_key_exists('controller', $action)) {
@@ -72,6 +73,11 @@ class PermissionController extends Controller
                     $method_name = explode('@', $action_name)[1] ?? null;
 
                     $class_name = explode('@', $action_name)[0];
+
+                    if (! class_exists($class_name)) {
+                        continue;
+                    }
+
                     $reflection = new \ReflectionClass($class_name);
 
                     $class_methods = $reflection->getMethods();
@@ -86,10 +92,12 @@ class PermissionController extends Controller
                             $slug = preg_replace('/:_/', '/', $slug);
 
                             if (! Str::startsWith($action_name, ['Auth', 'AdminConsole', 'Api', 'Dashboard']) && $class_methods->contains($method_name)) {
+
                                 $description = null;
                                 $method = new ReflectionMethod($class_name, $method_name);
                                 $attributes = $method->getAttributes(PermissionAttr::class);
-                                if (count($attributes)) {
+
+                                if (!empty($attributes)) {
                                     $attributeInstance = $attributes[0]->newInstance();
                                     // $name = $attributeInstance->name ?? null;
                                     $description = $attributeInstance->description ?? null;
@@ -119,6 +127,64 @@ class PermissionController extends Controller
         }
 
         return back();
+    }
+
+    public function sync_controller_permissions(Permission $permission)
+    {
+        $controller_name = $permission->controller_name;
+
+        if (! $controller_name) {
+            $controller_name = \Str::of($permission->name)->explode('@')[0];
+            /* $method_name = \Str::of($permission->name)->explode('@')[1]; */
+        }
+
+        $class_name = 'App\\Http\\Controllers\\' . $controller_name;
+
+        if (! class_exists($class_name)) {
+            return back()->withErrors('Controller class not found: ' . $class_name);
+        }
+        $class = new \ReflectionClass($class_name);
+        $class_methods = $class->getMethods();
+        $class_methods = collect($class_methods)
+            ->map(fn ($item) => $item->name)
+            ->filter(fn ($item) => $item !== '__construct' && $item !== 'middleware');
+
+        foreach ($class_methods as $method_name) {
+            $method = new ReflectionMethod($class_name, $method_name);
+            $attributes = $method->getAttributes(PermissionAttr::class);
+            $description = null;
+            if (!empty($attributes)) {
+                $attributeInstance = $attributes[0]->newInstance();
+                // $name = $attributeInstance->name ?? null;
+                $description = $attributeInstance->description ?? null;
+            }
+
+            $perm = Permission::query()
+                ->where('name', "{$controller_name}@{$method_name}")
+                ->first();
+
+            if ($perm) {
+                $perm->update([
+                    'description' => $description,
+                ]);
+
+            } else {
+                $slug = Str::replace('\\', ':', "{$controller_name}@{$method_name}");
+                $slug = Str::snake($slug);
+                $slug = preg_replace('/:_/', '/', $slug);
+
+                Permission::create([
+                    'name' => $controller_name . '@' . $method->name,
+                    'slug' => $slug,
+                    'controller' => $controller_name,
+                    'description' => $description,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        return back()->withSuccess('Controller permission synced successfully');
     }
 
 }

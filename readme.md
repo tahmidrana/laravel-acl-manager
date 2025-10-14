@@ -8,20 +8,13 @@ $ composer require tahmid/acl-manager
 2. Add this code on `User` model:
 
 ```
-use Tahmid\AclManager\Models\Role;
+use Tahmid\AclManager\Traits\AclManagerPermission;
 
-public function roles()
-{
-    return $this->belongsToMany(Role::class)
-            ->withPivot(['is_active', 'is_primary', 'released_at'])
-            ->withTimestamps();
-}
-
-public function hasPermission(string $slug): bool
-{
-    return $this->roles()
-        ->whereHas('permissions', fn($q) => $q->where('slug', $slug)->orWhere('name', $slug))
-        ->exists();
+class User extends Authenticatable {
+    ....
+    use AclManagerPermission;
+    ....
+    ....
 }
 ```
 
@@ -72,7 +65,7 @@ or
 * In routes use below middleware:
 ```
 // routes/web.php
-
+// This will automatically check if a user has access to the current controller method.
 Route::middleware('role_permission_check')->group(function () {
     //
 });
