@@ -24,7 +24,7 @@ class PermissionController extends Controller
         $permissions_not_exist = [];
         $permissions_method_not_exist = [];
         foreach ($permissions as $permission) {
-            $file_path = str_replace('\\', '/', $permission->controller);
+            $file_path = str_replace('\\', '/', $permission->controller_name);
             $file_path = base_path("app/Http/Controllers/{$file_path}.php");
             if (! file_exists($file_path)) {
                 $permissions_not_exist[] = $permission;
@@ -32,7 +32,7 @@ class PermissionController extends Controller
                 continue;
             }
 
-            $controller_name = "App\\Http\\Controllers\\{$permission->controller}";
+            $controller_name = "App\\Http\\Controllers\\{$permission->controller_name}";
             if (! class_exists($controller_name)) {
                 $permissions_not_exist[] = $permission;
 
