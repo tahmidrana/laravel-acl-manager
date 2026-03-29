@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Route;
 use Tahmid\AclManager\Http\Controllers\Admin\MenuController;
 use Tahmid\AclManager\Http\Controllers\Admin\PermissionController;
 use Tahmid\AclManager\Http\Controllers\Admin\RoleController;
@@ -13,6 +13,8 @@ Route::middleware(Config::get('acl.middleware', ['web', 'auth', 'is_superuser'])
         Route::get('/', function () {
             return redirect()->route('acl.roles.index');
         })->name('index');
+
+        Route::view('manual', 'acl::admin.manual')->name('manual');
 
         Route::resource('roles', RoleController::class)->only('index', 'show', 'store', 'update', 'destroy');
         Route::put('roles/{role}/save_role_menus', [RoleController::class, 'save_role_menus'])->name('roles.save-role-menus');

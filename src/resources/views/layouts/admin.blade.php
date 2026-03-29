@@ -35,6 +35,12 @@
                             {{ Auth::user()->name ?? 'User' }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
+                            {{-- <li>
+                                <a class="dropdown-item" href="{{ route('acl.manual') }}">
+                                    <i class="bi bi-book me-2"></i>User Manual
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li> --}}
                             <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
@@ -50,10 +56,22 @@
         </div>
     </nav>
 
-    <main class="container">
+    <main class="container pb-5">
         @include('acl::components.alerts')
 
         @yield('content')
+
+        <footer class="border-top mt-5 pt-4 pb-3">
+            <div class="d-flex justify-content-between align-items-center text-muted">
+                <small>Laravel ACL Manager v1.0.7</small>
+                <small>
+                    All rights reserved. Developed by peoples at
+                    <a href="https://appinionbd.com" target="_blank" class="text-decoration-none">
+                        Appinion BD Limited
+                    </a>
+                </small>
+            </div>
+        </footer>
     </main>
 
     <script src="{{ asset('vendor/acl/js/bootstrap.bundle.min.js') }}"></script>
