@@ -23,21 +23,40 @@
             </h5>
         </div>
         <div class="card-body">
-            <p><strong>Title:</strong> {{ $role->title }}</p>
-            <p><strong>Slug:</strong> {{ $role->slug }}</p>
-            <p><strong>Permissions Count:</strong> {{ $role->permissions()->count() }}</p>
-            <p><strong>Menu Count:</strong> {{ $role->menus()->count() }}</p>
-            <p><strong>Active:</strong>
-                @if ($role->is_active)
-                    <span class="badge bg-success">
-                        <i class="bi bi-check-circle me-1"></i>Active
-                    </span>
-                @else
-                    <span class="badge bg-secondary">
-                        <i class="bi bi-x-circle me-1"></i>Inactive
-                    </span>
-                @endif
-            </p>
+            <table class="table table-borderless mb-0">
+                <tbody>
+                    <tr>
+                        <th style="width: 18%;">Title</th>
+                        <td>{{ $role->title }}</td>
+                    </tr>
+                    <tr>
+                        <th>Slug</th>
+                        <td>{{ $role->slug }}</td>
+                    </tr>
+                    <tr>
+                        <th>Permissions Count</th>
+                        <td>{{ $role->permissions()->count() }}</td>
+                    </tr>
+                    <tr>
+                        <th>Menu Count</th>
+                        <td>{{ $role->menus()->count() }}</td>
+                    </tr>
+                    <tr>
+                        <th>Active</th>
+                        <td>
+                            @if ($role->is_active)
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Active
+                                </span>
+                            @else
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-x-circle me-1"></i>Inactive
+                                </span>
+                            @endif
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
