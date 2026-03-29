@@ -2,7 +2,7 @@
     "name": "tahmid/laravel-acl-manager",
     "description": "ACL Manager for Laravel (for appinion internal projects)",
     "type": "library",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "license": "MIT",
     "authors": [
         {
@@ -17,7 +17,10 @@
     "autoload": {
         "psr-4": {
             "Tahmid\\AclManager\\": "src/"
-        }
+        },
+        "files": [
+            "src/Helpers/helpers.php"
+        ]
     },
     "autoload-dev": {},
     "extra": {

@@ -145,6 +145,70 @@ if ($user->hasPermission('users.delete')) { // permission name or slug as parame
 }
 ```
 
+### Getting User Menus
+
+#### Using Facade / Helper Functions
+
+```php
+// Using Facade
+$menus = \Acl::getMenus(); // All menus for current user
+$menus = \Acl::getMenus($user); // Specific user
+
+// Using Helper Functions
+$menus = acl_menus(); // All menus for current user
+$menus = acl_menus($user); // Specific user
+
+// Get hierarchical menu tree (parent -> children)
+$menuTree = \Acl::getMenuTree();
+$menuTree = acl_menu_tree();
+```
+
+#### Using User Trait
+
+```php
+// Get menus for authenticated user
+$menus = auth()->user()->menus()->get();
+
+// Get hierarchical menu tree
+$menuTree = auth()->user()->menuTree();
+
+// Filter by active only (default)
+$activeMenus = auth()->user()->menus(true)->get();
+
+// Include inactive menus
+$allMenus = auth()->user()->menus(false)->get();
+```
+
+#### Example: Building Navigation in Blade
+
+```php
+@php
+    $menuTree = acl_menu_tree();
+@endphp
+
+<ul>
+@foreach($menuTree as $menu)
+    <li>
+        <a href="{{ route($menu->route_name) }}">
+            <i class="{{ $menu->menu_icon }}"></i>
+            {{ $menu->title }}
+        </a>
+        @if($menu->sub_menus->count())
+            <ul>
+            @foreach($menu->sub_menus as $submenu)
+                <li>
+                    <a href="{{ route($submenu->route_name) }}">
+                        {{ $submenu->title }}
+                    </a>
+                </li>
+            @endforeach
+            </ul>
+        @endif
+    </li>
+@endforeach
+</ul>
+```
+
 ### Blade Directives
 
 ```blade
@@ -221,6 +285,15 @@ class UserController extends Controller
 | `Acl::can($permission, $user)` | `string, ?User` | Check if user can perform action |
 | `Acl::hasPermission($permission, $user)` | `string, ?User` | Alias for can() |
 | `Acl::roleHasPermission($roleSlug, $permSlug)` | `string, string` | Check if role has permission |
+| `Acl::getMenus($user, $activeOnly)` | `?User, bool` | Get menus for user |
+| `Acl::getMenuTree($user, $activeOnly)` | `?User, bool` | Get hierarchical menu tree |
+
+### Helper Functions
+
+| Function | Parameters | Description |
+|----------|------------|-------------|
+| `acl_menus($user, $activeOnly)` | `?User, bool` | Get menus for user |
+| `acl_menu_tree($user, $activeOnly)` | `?User, bool` | Get hierarchical menu tree |
 
 ### User Trait Methods
 
@@ -228,6 +301,8 @@ class UserController extends Controller
 |--------|------------|-------------|
 | `$user->hasPermission($slug)` | `string` | Check if user has permission |
 | `$user->roles()` | - | Get user's roles (BelongsToMany) |
+| `$user->menus($activeOnly)` | `bool` | Get menus for user (query builder) |
+| `$user->menuTree($activeOnly)` | `bool` | Get hierarchical menu tree |
 
 ---
 

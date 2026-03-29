@@ -65,9 +65,9 @@
             <div class="d-flex justify-content-between align-items-center text-muted">
                 <small>Laravel ACL Manager v1.0.7</small>
                 <small>
-                    All rights reserved. Developed by peoples at
+                    All rights reserved. Developed by peoples @
                     <a href="https://appinionbd.com" target="_blank" class="text-decoration-none">
-                        Appinion BD Limited
+                        Appinion
                     </a>
                 </small>
             </div>
