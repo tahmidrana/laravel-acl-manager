@@ -28,7 +28,17 @@
                         <td>{{ $role->slug }}</td>
                         <td>{{ $role->permissions()->count() }}</td>
                         <td>{{ $role->menus()->count() }}</td>
-                        <td>{{ $role->is_active ? 'Yes' : 'No' }}</td>
+                        <td>
+                            @if ($role->is_active)
+                                <span class="badge bg-success ">
+                                    <i class="bi bi-check-circle"></i>
+                                </span>
+                            @else
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle"></i>
+                                </span>
+                            @endif
+                        </td>
                         <td class="d-flex gap-1 justify-content-center">
                             <a href="{{ route('acl.roles.show', ['role'=> $role->id]) }}" class="btn btn-sm btn-info" title="Config"><i class="bi bi-gear"></i></a>
 

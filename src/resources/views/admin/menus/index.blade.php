@@ -35,7 +35,17 @@
                         <td>{{ $menu->route_name }}</td>
                         <td>{{ $menu->menu_icon }}</td>
                         <td>{{ $menu->menu_order }}</td>
-                        <td>{{ $menu->is_active ? 'Yes' : 'No' }}</td>
+                        <td>
+                            @if ($menu->is_active)
+                                <span class="badge bg-success ">
+                                    <i class="bi bi-check-circle"></i>
+                                </span>
+                            @else
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle"></i>
+                                </span>
+                            @endif
+                        </td>
                         <td class="d-flex gap-1 justify-content-center">
                             <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#updateModal_{{ $menu->id }}"><i class="bi bi-pencil"></i></button>
 

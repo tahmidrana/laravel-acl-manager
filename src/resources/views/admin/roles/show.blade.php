@@ -2,27 +2,52 @@
 
 @section('content')
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="h4">Role config</h5>
-        <a href="{{ route('acl.roles.index') }}" class="btn btn-sm btn-primary mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">
+                <i class="bi bi-shield-check text-primary me-2"></i>
+                Role Configuration
+            </h4>
+            <p class="text-muted small mb-0">Manage role details, menus, and permissions</p>
+        </div>
+        <a href="{{ route('acl.roles.index') }}" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left"></i> Back to Roles
         </a>
     </div>
 
-    <div class="card">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-whites py-3">
+            <h5 class="mb-0">
+                <i class="bi bi-person-badge text-primary me-2"></i>
+                Role Details
+            </h5>
+        </div>
         <div class="card-body">
-            <h2 class="h5">Role Details</h2>
             <p><strong>Title:</strong> {{ $role->title }}</p>
             <p><strong>Slug:</strong> {{ $role->slug }}</p>
             <p><strong>Permissions Count:</strong> {{ $role->permissions()->count() }}</p>
             <p><strong>Menu Count:</strong> {{ $role->menus()->count() }}</p>
-            <p><strong>Active:</strong> {{ $role->is_active ? 'Yes' : 'No' }}</p>
+            <p><strong>Active:</strong>
+                @if ($role->is_active)
+                    <span class="badge bg-success">
+                        <i class="bi bi-check-circle me-1"></i>Active
+                    </span>
+                @else
+                    <span class="badge bg-secondary">
+                        <i class="bi bi-x-circle me-1"></i>Inactive
+                    </span>
+                @endif
+            </p>
         </div>
     </div>
 
-    <div class="card mt-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title">Web menus for ({{ $role->title }})</h5>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center py-3">
+            <h5 class="card-titles mb-0">
+                <i class="bi bi-menu-button-wide text-primary me-2"></i>
+                Web Menus
+                <span class="text-muted fs-6">({{ $role->title }})</span>
+            </h5>
             {{-- <div class="card-toolbar">
                 <label for="role_menus_check_all" class="ml-3">
                     <input type="checkbox" name="role_menus_check_all" id="role_menus_check_all"
@@ -32,7 +57,7 @@
             </div> --}}
         </div>
         <div class="card-body">
-            <form action="{{ route('acl.roles.save-role-menus', ['role'=> $role->id]) }}" method="POST">
+            <form action="{{ route('acl.roles.save-role-menus', ['role' => $role->id]) }}" method="POST">
                 @csrf
                 @method('put')
                 <div class="">
@@ -49,8 +74,8 @@
                                     @if ($ch_menu->parent_menu_id == $menu->id)
                                         <div class="ms-4 mb-2">
                                             <label for="role_menu{{ $ch_menu->id }}">
-                                                <input type="checkbox" name="role_menus[]"
-                                                    value="{{ $ch_menu->id }}" id="role_menu{{ $ch_menu->id }}"
+                                                <input type="checkbox" name="role_menus[]" value="{{ $ch_menu->id }}"
+                                                    id="role_menu{{ $ch_menu->id }}"
                                                     {{ $user_type_menus->contains($ch_menu->id) ? 'checked' : '' }}>
                                                 {{ $ch_menu->title }}
                                             </label>
@@ -64,17 +89,23 @@
                     @endforelse
                 </div>
                 @if ($menus->count())
-                    <div class="">
-                        <button type="submit" class="btn btn-sm fw-bold btn-primary mt-3">Save</button>
+                    <div class="mt-3 pt-2 border-top">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Save
+                        </button>
                     </div>
                 @endif
             </form>
         </div>
     </div>
 
-    <div class="card shadow-sm mt-4 mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title">Permissions for ({{ $role->title }})</h5>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center py-3">
+            <h5 class="card-titles mb-0">
+                <i class="bi bi-key text-primary me-2"></i>
+                Permissions
+                <span class="text-muted fs-6">({{ $role->title }})</span>
+            </h5>
             {{-- <div class="card-toolbar">
                 <label for="role_permission_check_all" class="ml-3">
                     <input type="checkbox" name="role_permission_check_all" id="role_permission_check_all"
@@ -101,13 +132,12 @@
                                         <div class="col-4">
                                             <label for="role_permission{{ $perm->id }}" class="mb-3">
                                                 <input type="checkbox" name="role_permissions[]"
-                                                    value="{{ $perm->id }}"
-                                                    id="role_permission{{ $perm->id }}"
+                                                    value="{{ $perm->id }}" id="role_permission{{ $perm->id }}"
                                                     {{ $user_type_permissions->contains($perm->id) ? 'checked' : '' }}>
                                                 {{ ucfirst(\Str::of($perm->name)->explode('@')[1] ?? \Str::of($perm->name)->explode('@')[0]) }}
 
                                                 @if ($perm->description)
-                                                <p class="text-primary">-> {{ $perm->description }}</p>
+                                                    <p class="text-primary">-> {{ $perm->description }}</p>
                                                 @endif
                                             </label>
 
@@ -122,8 +152,10 @@
                     </div>
                 </div>
                 @if ($permissions->count())
-                    <div class="">
-                        <button type="submit" class="btn btn-sm fw-bold btn-primary mt-3">Save</button>
+                    <div class="mt-3 pt-2 border-top">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Save
+                        </button>
                     </div>
                 @endif
             </form>

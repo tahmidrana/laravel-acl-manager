@@ -2,9 +2,9 @@
 
 namespace Tahmid\AclManager;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Tahmid\AclManager\Http\Middleware\IsSuperuser;
-use Illuminate\Support\Facades\Blade;
 use Tahmid\AclManager\Http\Middleware\RolePermissionCheck;
 
 class AclManagerServiceProvider extends ServiceProvider
@@ -17,7 +17,8 @@ class AclManagerServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__.'/config/acl.php' => config_path('acl.php'),
-        ], 'acl-config');
+            __DIR__.'/public' => public_path('vendor/acl'),
+        ], 'acl-assets');
 
         // Blade directive
         Blade::if('acl', function (string $permission) {
@@ -30,7 +31,7 @@ class AclManagerServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('acl', function () {
-            return new Helpers\AccessControl();
+            return new Helpers\AccessControl;
         });
     }
 
