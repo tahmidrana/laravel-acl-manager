@@ -17,11 +17,12 @@ class RolePermissionCheck
     {
         // $user = $request->user();
         $action = \Route::current()->action['controller'] ?? null;
+        $action_name = explode('Controllers\\', $action)[1];
+
         if (! \Acl::can($action_name)) {
             abort(404, 'Controller not found for this route');
         }
 
-        $action_name = explode('Controllers\\', $action)[1];
         // if (! $user->hasPermission($action_name)) {
         if (! \Acl::can($action_name)) {
             abort(401, 'You do not have permission to acccess this page');

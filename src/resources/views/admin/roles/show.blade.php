@@ -4,7 +4,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="h4">Role config</h5>
-        <a href="{{ route('acl.roles.index') }}" class="btn btn-sm btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createRoleModal">
+        <a href="{{ route('acl.roles.index') }}" class="btn btn-sm btn-primary mb-3">
             <i class="bi bi-arrow-left"></i> Back to Roles
         </a>
     </div>
@@ -36,7 +36,7 @@
                 @csrf
                 @method('put')
                 <div class="">
-                    @foreach ($menus as $menu)
+                    @forelse ($menus as $menu)
                         @if (!$menu->parent_menu_id)
                             <div class="mb-2">
                                 <label for="role_menu{{ $menu->id }}" class="mb-2">
@@ -59,11 +59,15 @@
                                 @endforeach
                             </div>
                         @endif
-                    @endforeach
+                    @empty
+                        <p>No menus found.</p>
+                    @endforelse
                 </div>
-                <div class="">
-                    <button type="submit" class="btn btn-sm fw-bold btn-primary mt-3">Save</button>
-                </div>
+                @if ($menus->count())
+                    <div class="">
+                        <button type="submit" class="btn btn-sm fw-bold btn-primary mt-3">Save</button>
+                    </div>
+                @endif
             </form>
         </div>
     </div>
@@ -88,7 +92,7 @@
 
                 <div>
                     <div class="row">
-                        @foreach ($permissions as $controller => $perm_arr)
+                        @forelse ($permissions as $controller => $perm_arr)
                             <div class="col-12 mb-3">
                                 <b>* <span style="text-decoration: underline;">{{ $controller }}:</span></b>
 
@@ -112,12 +116,16 @@
                                 </div>
 
                             </div>
-                        @endforeach
+                        @empty
+                            <p>No permissions found.</p>
+                        @endforelse
                     </div>
                 </div>
-                <div class="">
-                    <button type="submit" class="btn btn-sm fw-bold btn-primary mt-3">Save</button>
-                </div>
+                @if ($permissions->count())
+                    <div class="">
+                        <button type="submit" class="btn btn-sm fw-bold btn-primary mt-3">Save</button>
+                    </div>
+                @endif
             </form>
         </div>
     </div>
