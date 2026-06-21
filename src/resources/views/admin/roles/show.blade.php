@@ -143,14 +143,19 @@
                 <div>
                     <div class="row">
                         @forelse ($permissions as $controller => $perm_arr)
+                            @php $group = $loop->index; @endphp
                             <div class="col-12 mb-3">
-                                <b>* <span style="text-decoration: underline;">{{ $controller }}:</span></b>
+                                <label class="mb-1" style="cursor: pointer;">
+                                    <input type="checkbox" class="js-controller-check" data-group="{{ $group }}">
+                                    <b>* <span style="text-decoration: underline;">{{ $controller }}:</span></b>
+                                </label>
 
                                 <div class="row mt-2 mb-3 ms-5">
                                     @foreach ($perm_arr as $perm)
                                         <div class="col-4">
                                             <label for="role_permission{{ $perm->id }}" class="mb-3">
                                                 <input type="checkbox" name="role_permissions[]"
+                                                    class="js-method-check" data-group="{{ $group }}"
                                                     value="{{ $perm->id }}" id="role_permission{{ $perm->id }}"
                                                     {{ $user_type_permissions->contains($perm->id) ? 'checked' : '' }}>
                                                 {{ ucfirst(\Str::of($perm->name)->explode('@')[1] ?? \Str::of($perm->name)->explode('@')[0]) }}
@@ -181,5 +186,45 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function methodsOf(group) {
+                return Array.prototype.slice.call(
+                    document.querySelectorAll('.js-method-check[data-group="' + group + '"]')
+                );
+            }
+
+            // Reflect the controller checkbox from its methods:
+            // checked when all are checked, indeterminate when only some are.
+            function syncControllerState(group) {
+                var controller = document.querySelector('.js-controller-check[data-group="' + group + '"]');
+                if (!controller) return;
+
+                var boxes = methodsOf(group);
+                var checked = boxes.filter(function (b) { return b.checked; }).length;
+
+                controller.checked = boxes.length > 0 && checked === boxes.length;
+                controller.indeterminate = checked > 0 && checked < boxes.length;
+            }
+
+            document.querySelectorAll('.js-controller-check').forEach(function (controller) {
+                var group = controller.dataset.group;
+                syncControllerState(group); // initial state on load
+
+                // Controller -> methods
+                controller.addEventListener('change', function () {
+                    methodsOf(group).forEach(function (b) { b.checked = controller.checked; });
+                    controller.indeterminate = false;
+                });
+            });
+
+            // Methods -> controller
+            document.querySelectorAll('.js-method-check').forEach(function (box) {
+                box.addEventListener('change', function () {
+                    syncControllerState(box.dataset.group);
+                });
+            });
+        });
+    </script>
 
 @endsection

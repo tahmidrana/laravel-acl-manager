@@ -15,17 +15,16 @@ class RolePermissionCheck
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // $user = $request->user();
         $action = \Route::current()->action['controller'] ?? null;
+
+        if (! $action || ! str_contains($action, 'Controllers\\')) {
+            abort(403, 'Unauthorized');
+        }
+
         $action_name = explode('Controllers\\', $action)[1];
 
         if (! \Acl::can($action_name)) {
-            abort(404, 'Controller not found for this route');
-        }
-
-        // if (! $user->hasPermission($action_name)) {
-        if (! \Acl::can($action_name)) {
-            abort(401, 'You do not have permission to acccess this page');
+            abort(403, 'You do not have permission to access this page');
         }
 
         return $next($request);

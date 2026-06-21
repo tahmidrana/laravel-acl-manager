@@ -204,7 +204,7 @@ class PermissionController extends Controller
                 Permission::create([
                     'name' => $controller_name . '@' . $method->name,
                     'slug' => $slug,
-                    'controller' => $controller_name,
+                    'controller_name' => $controller_name,
                     'description' => $description,
                     'created_at' => now(),
                     'updated_at' => now(),

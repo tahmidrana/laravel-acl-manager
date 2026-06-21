@@ -4,6 +4,8 @@ namespace Tahmid\AclManager\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Tahmid\AclManager\Models\Menu;
 use Tahmid\AclManager\Models\Permission;
 use Tahmid\AclManager\Models\Role;
@@ -24,7 +26,7 @@ class RoleController extends Controller
             'is_active'  => 'required|in:0,1',
         ]);
 
-        $validated['slug'] = \Str::of($validated['title'])->slug('-');
+        $validated['slug'] = Str::of($validated['title'])->slug('-');
 
         Role::create($validated);
 
@@ -83,9 +85,23 @@ class RoleController extends Controller
         ]);
 
         try {
-            $role->menus()->sync($request->role_menus);
+            $selected = Menu::whereIn('id', $request->role_menus ?? [])
+                ->get(['id', 'parent_menu_id']);
+
+            $selectedIds = $selected->pluck('id');
+
+            // Keep top-level menus when checked; keep a sub-menu only if its
+            // parent menu is also selected. So unchecking a main menu removes
+            // it and all of its sub-menus, even if a child was left checked.
+            $menuIds = $selected
+                ->filter(fn ($menu) => is_null($menu->parent_menu_id) || $selectedIds->contains($menu->parent_menu_id))
+                ->pluck('id')
+                ->all();
+
+            $role->menus()->sync($menuIds);
             session()->flash('success', 'Success! Successfully Updated!');
         } catch (\Exception $e) {
+            Log::error($e);
             session()->flash('error', 'Oops! Something went wrong!');
         }
 
@@ -104,6 +120,7 @@ class RoleController extends Controller
 
             session()->flash('success', 'Success! Successfully Updated!');
         } catch (\Exception $e) {
+            Log::error($e);
             session()->flash('error', 'Oops! Something went wrong!');
         }
 
