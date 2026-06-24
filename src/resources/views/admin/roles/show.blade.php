@@ -85,6 +85,7 @@
                             <div class="mb-2">
                                 <label for="role_menu{{ $menu->id }}" class="mb-2">
                                     <input type="checkbox" name="role_menus[]" value="{{ $menu->id }}"
+                                        class="js-menu-parent" data-menu-group="{{ $menu->id }}"
                                         id="role_menu{{ $menu->id }}"
                                         {{ $user_type_menus->contains($menu->id) ? 'checked' : '' }}>
                                     {{ $menu->title }}
@@ -94,6 +95,7 @@
                                         <div class="ms-4 mb-2">
                                             <label for="role_menu{{ $ch_menu->id }}">
                                                 <input type="checkbox" name="role_menus[]" value="{{ $ch_menu->id }}"
+                                                    class="js-menu-child" data-menu-group="{{ $menu->id }}"
                                                     id="role_menu{{ $ch_menu->id }}"
                                                     {{ $user_type_menus->contains($ch_menu->id) ? 'checked' : '' }}>
                                                 {{ $ch_menu->title }}
@@ -146,7 +148,8 @@
                             @php $group = $loop->index; @endphp
                             <div class="col-12 mb-3">
                                 <label class="mb-1" style="cursor: pointer;">
-                                    <input type="checkbox" class="js-controller-check" data-group="{{ $group }}">
+                                    <input type="checkbox" class="js-controller-check" data-group="{{ $group }}"
+                                        name="checked_controllers[]" value="{{ $controller }}">
                                     <b>* <span style="text-decoration: underline;">{{ $controller }}:</span></b>
                                 </label>
 
@@ -195,25 +198,32 @@
             }
 
             // Reflect the controller checkbox from its methods:
-            // checked when all are checked, indeterminate when only some are.
-            function syncControllerState(group) {
+            // checked when at least one method is checked (so the group is
+            // submitted and kept on save), indeterminate when only some are.
+            function syncControllerState(group, forceController) {
                 var controller = document.querySelector('.js-controller-check[data-group="' + group + '"]');
                 if (!controller) return;
 
                 var boxes = methodsOf(group);
                 var checked = boxes.filter(function (b) { return b.checked; }).length;
 
-                controller.checked = boxes.length > 0 && checked === boxes.length;
                 controller.indeterminate = checked > 0 && checked < boxes.length;
+                if (forceController) {
+                    controller.checked = checked > 0;
+                }
             }
 
             document.querySelectorAll('.js-controller-check').forEach(function (controller) {
                 var group = controller.dataset.group;
-                syncControllerState(group); // initial state on load
+                syncControllerState(group, true); // reflect saved child state on load
 
-                // Controller -> methods
+                // Controller -> methods: checking cascades down to check all
+                // methods; unchecking leaves the method boxes as-is on screen,
+                // but the controller stays unchecked so the backend removes them.
                 controller.addEventListener('change', function () {
-                    methodsOf(group).forEach(function (b) { b.checked = controller.checked; });
+                    if (controller.checked) {
+                        methodsOf(group).forEach(function (b) { b.checked = true; });
+                    }
                     controller.indeterminate = false;
                 });
             });
@@ -221,7 +231,55 @@
             // Methods -> controller
             document.querySelectorAll('.js-method-check').forEach(function (box) {
                 box.addEventListener('change', function () {
-                    syncControllerState(box.dataset.group);
+                    syncControllerState(box.dataset.group, true);
+                });
+            });
+
+            // ---- Menus: parent menu <-> sub-menus ----
+            function subMenusOf(group) {
+                return Array.prototype.slice.call(
+                    document.querySelectorAll('.js-menu-child[data-menu-group="' + group + '"]')
+                );
+            }
+
+            // Reflect the parent menu from its sub-menus. When `forceParent` is
+            // true (a sub-menu was toggled), the parent follows: checked when any
+            // sub-menu is checked, indeterminate when only some are, unchecked when
+            // none. On load we only set the indeterminate hint and keep the saved
+            // parent state untouched.
+            function syncParentState(group, forceParent) {
+                var parent = document.querySelector('.js-menu-parent[data-menu-group="' + group + '"]');
+                if (!parent) return;
+
+                var subs = subMenusOf(group);
+                if (!subs.length) return; // top-level menu with no sub-menus
+
+                var checked = subs.filter(function (b) { return b.checked; }).length;
+
+                parent.indeterminate = checked > 0 && checked < subs.length;
+                if (forceParent) {
+                    parent.checked = checked > 0;
+                }
+            }
+
+            document.querySelectorAll('.js-menu-parent').forEach(function (parent) {
+                var group = parent.dataset.menuGroup;
+                syncParentState(group, false); // initial indeterminate hint, respect saved state
+
+                parent.addEventListener('change', function () {
+                    // Checking a parent cascades down to its sub-menus.
+                    // Unchecking a parent leaves sub-menus as-is on screen;
+                    // the backend removes them on save.
+                    if (parent.checked) {
+                        subMenusOf(group).forEach(function (b) { b.checked = true; });
+                    }
+                    parent.indeterminate = false;
+                });
+            });
+
+            document.querySelectorAll('.js-menu-child').forEach(function (box) {
+                box.addEventListener('change', function () {
+                    syncParentState(box.dataset.menuGroup, true);
                 });
             });
         });

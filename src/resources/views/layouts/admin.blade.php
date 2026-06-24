@@ -6,6 +6,7 @@
     <title>ACL Manager - Admin Panel</title>
     <link href="{{ asset('vendor/acl/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/acl/css/bootstrap-icons.min.css') }}" rel="stylesheet">
+    @stack('styles')
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
@@ -63,7 +64,7 @@
 
         <footer class="border-top mt-5 pt-4 pb-3">
             <div class="d-flex justify-content-between align-items-center text-muted">
-                <small>Laravel ACL Manager v1.0.7</small>
+                <small>Laravel ACL Manager v1.0.8</small>
                 <small>
                     All rights reserved. Developed by peoples @
                     <a href="https://appinionbd.com" target="_blank" class="text-decoration-none">
@@ -75,5 +76,6 @@
     </main>
 
     <script src="{{ asset('vendor/acl/js/bootstrap.bundle.min.js') }}"></script>
+    @stack('scripts')
 </body>
 </html>

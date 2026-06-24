@@ -113,10 +113,24 @@ class RoleController extends Controller
         $request->validate([
             'role_permissions' => 'nullable|array',
             'role_permissions.*' => 'integer|distinct|exists:permissions,id',
+            'checked_controllers' => 'nullable|array',
         ]);
 
         try {
-            $role->permissions()->sync($request->role_permissions);
+            $selected = Permission::whereIn('id', $request->role_permissions ?? [])
+                ->get(['id', 'controller_name']);
+
+            $checkedControllers = collect($request->checked_controllers ?? []);
+
+            // Keep a permission only if its controller group is checked. So
+            // unchecking a controller (parent) removes all of its permissions
+            // on save, even if a child checkbox was left checked on screen.
+            $permissionIds = $selected
+                ->filter(fn ($perm) => $checkedControllers->contains($perm->controller_name))
+                ->pluck('id')
+                ->all();
+
+            $role->permissions()->sync($permissionIds);
 
             session()->flash('success', 'Success! Successfully Updated!');
         } catch (\Exception $e) {

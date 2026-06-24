@@ -6,7 +6,6 @@ use Tahmid\AclManager\Attributes\PermissionAttr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Tahmid\AclManager\Models\Permission;
 use ReflectionMethod;
 
@@ -19,7 +18,7 @@ class PermissionController extends Controller
                 $query->where('name', 'like', '%' . request('search') . '%')
                     ->orWhere('slug', 'like', '%' . request('search') . '%');
             })
-            ->paginate(30);
+            ->paginate(15);
 
         $permissions_not_exist = [];
         $permissions_method_not_exist = [];
@@ -94,64 +93,102 @@ class PermissionController extends Controller
         try {
             $permissions = [];
 
-            foreach (\Route::getRoutes()->getRoutes() as $route) {
-                $action = $route->getAction();
-                if (array_key_exists('controller', $action)) {
-                    // You can also use explode('@', $action['controller']); here
-                    // to separate the class name from the method
-                    $action_name = $action['controller'];
-                    $method_name = explode('@', $action_name)[1] ?? null;
+            $controllers_path = app_path('Http/Controllers');
 
-                    $class_name = explode('@', $action_name)[0];
-                    if (! class_exists($class_name)) {
+            if (! is_dir($controllers_path)) {
+                session()->flash('error', 'Controllers directory not found');
+
+                return back();
+            }
+
+            // Controllers to skip, configured in config/acl.php. Directories are
+            // matched as a path prefix; controllers are matched exactly. Both are
+            // normalised to the backslash form used by the relative class path.
+            $ignored_directories = collect(config('acl.ignore_controller_directories', []))
+                ->map(fn ($dir) => trim(str_replace('/', '\\', $dir), '\\'))
+                ->filter();
+
+            $ignored_controllers = collect(config('acl.ignore_controllers', []))
+                ->map(fn ($ctrl) => trim(str_replace(['/', '.php'], ['\\', ''], $ctrl), '\\'))
+                ->filter();
+
+            // Scan the controllers directory directly so newly added
+            // controllers are picked up even when they have no routes yet.
+            foreach (\File::allFiles($controllers_path) as $file) {
+                if ($file->getExtension() !== 'php') {
+                    continue;
+                }
+
+                // Build the FQCN from the path relative to app/Http/Controllers
+                $relative_class = str_replace(['/', '.php'], ['\\', ''], $file->getRelativePathname());
+                $class_name = 'App\\Http\\Controllers\\' . $relative_class;
+
+                if (! class_exists($class_name)) {
+                    continue;
+                }
+
+                $reflection = new \ReflectionClass($class_name);
+                if ($reflection->isAbstract() || $reflection->isInterface()) {
+                    continue;
+                }
+
+                // Permission names use the path relative to Controllers,
+                // e.g. "Blog\PostController" -> "Blog\PostController@index".
+                if ($ignored_controllers->contains($relative_class)) {
+                    continue;
+                }
+
+                if ($ignored_directories->contains(fn ($dir) => Str::startsWith($relative_class, $dir . '\\'))) {
+                    continue;
+                }
+
+                foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+                    // Only methods declared on the controller itself, skipping
+                    // inherited base/trait methods and magic methods.
+                    if ($method->getDeclaringClass()->getName() !== $class_name) {
                         continue;
                     }
 
-                    $reflection = new \ReflectionClass($class_name);
-
-                    $class_methods = $reflection->getMethods();
-                    $class_methods = collect($class_methods)->map(fn ($item) => $item->name);
-
-                    if (substr($action_name, 0, 3) === 'App') {
-                        $action_name = explode('Controllers\\', $action_name)[1];
-
-                        if (! in_array($action_name, $saved_permissions)) {
-                            $slug = Str::replace('\\', ':', $action_name);
-                            $slug = Str::snake($slug);
-                            $slug = preg_replace('/:_/', '/', $slug);
-
-                            if (! Str::startsWith($action_name, ['Auth', 'AdminConsole', 'Api', 'Dashboard']) && $class_methods->contains($method_name)) {
-
-                                $description = null;
-                                $method = new ReflectionMethod($class_name, $method_name);
-                                $attributes = $method->getAttributes(PermissionAttr::class);
-
-                                if (!empty($attributes)) {
-                                    $attributeInstance = $attributes[0]->newInstance();
-                                    // $name = $attributeInstance->name ?? null;
-                                    $description = $attributeInstance->description ?? null;
-                                }
-
-                                $permissions[] = [
-                                    'name' => $action_name,
-                                    'slug' => $slug,
-                                    'controller_name' => explode('@', $action_name)[0],
-                                    'description' => $description,
-                                    'created_at' => now(),
-                                    'updated_at' => now(),
-                                ];
-                            }
-                        }
+                    $method_name = $method->getName();
+                    if (Str::startsWith($method_name, '__') || $method_name === 'middleware') {
+                        continue;
                     }
+
+                    $action_name = "{$relative_class}@{$method_name}";
+
+                    if (in_array($action_name, $saved_permissions)) {
+                        continue;
+                    }
+
+                    $slug = Str::replace('\\', ':', $action_name);
+                    $slug = Str::snake($slug);
+                    $slug = preg_replace('/:_/', '/', $slug);
+
+                    $description = null;
+                    $attributes = $method->getAttributes(PermissionAttr::class);
+                    if (! empty($attributes)) {
+                        $attributeInstance = $attributes[0]->newInstance();
+                        $description = $attributeInstance->description ?? null;
+                    }
+
+                    $permissions[$action_name] = [
+                        'name' => $action_name,
+                        'slug' => $slug,
+                        'controller_name' => $relative_class,
+                        'description' => $description,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
                 }
             }
 
             if (count($permissions)) {
-                Permission::insert($permissions);
+                Permission::insert(array_values($permissions));
             }
 
             session()->flash('success', 'Successfully synced permissions');
         } catch (\Throwable $th) {
+            \Log::error($th);
             session()->flash('error', 'Permission sync failed');
         }
 
@@ -173,10 +210,11 @@ class PermissionController extends Controller
             return back()->withErrors('Controller class not found: ' . $class_name);
         }
         $class = new \ReflectionClass($class_name);
-        $class_methods = $class->getMethods();
-        $class_methods = collect($class_methods)
+        $class_methods = collect($class->getMethods(\ReflectionMethod::IS_PUBLIC))
+            ->filter(fn ($item) => $item->getDeclaringClass()->getName() === $class_name)
             ->map(fn ($item) => $item->name)
-            ->filter(fn ($item) => $item !== '__construct' && $item !== 'middleware');
+            ->filter(fn ($item) => ! Str::startsWith($item, '__') && $item !== 'middleware')
+            ->values();
 
         foreach ($class_methods as $method_name) {
             $method = new ReflectionMethod($class_name, $method_name);

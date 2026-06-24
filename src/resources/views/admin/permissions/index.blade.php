@@ -146,7 +146,12 @@
                 @endforelse
             </tbody>
         </table>
-        {{ $permissions->links() }}
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <small class="text-muted">
+                Showing {{ $permissions->firstItem() ?? 0 }}–{{ $permissions->lastItem() ?? 0 }} of {{ $permissions->total() }}
+            </small>
+            {{ $permissions->appends(request()->query())->links('pagination::bootstrap-5') }}
+        </div>
     </div>
 
     <!-- Create Permission Modal -->

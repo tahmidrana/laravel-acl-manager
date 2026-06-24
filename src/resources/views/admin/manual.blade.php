@@ -51,23 +51,23 @@
                 <h6 class="text-primary">1. Install via Composer</h6>
                 <div class="code-block">
                     <code>composer require tahmid/acl-manager</code>
-                    <button class="btn-copy" onclick="copyCode(this)"><i class="bi bi-clipboard"></i></button>
+                    <button class="btn-copy" onclick="copyCode(this)" title="Copy"><i class="bi bi-clipboard"></i></button>
                 </div>
 
                 <h6 class="text-primary mt-4">2. Publish Assets</h6>
                 <div class="code-block">
                     <code>php artisan vendor:publish --tag=acl-assets</code>
-                    <button class="btn-copy" onclick="copyCode(this)"><i class="bi bi-clipboard"></i></button>
+                    <button class="btn-copy" onclick="copyCode(this)" title="Copy"><i class="bi bi-clipboard"></i></button>
                 </div>
-                <div class="code-block">
+                <div class="code-block mt-1">
                     <code>php artisan vendor:publish --tag=acl-config</code>
-                    <button class="btn-copy" onclick="copyCode(this)"><i class="bi bi-clipboard"></i></button>
+                    <button class="btn-copy" onclick="copyCode(this)" title="Copy"><i class="bi bi-clipboard"></i></button>
                 </div>
 
                 <h6 class="text-primary mt-4">3. Run Migrations</h6>
                 <div class="code-block">
                     <code>php artisan migrate</code>
-                    <button class="btn-copy" onclick="copyCode(this)"><i class="bi bi-clipboard"></i></button>
+                    <button class="btn-copy" onclick="copyCode(this)" title="Copy"><i class="bi bi-clipboard"></i></button>
                 </div>
 
                 <h6 class="text-primary mt-4">4. Update User Model</h6>
@@ -374,21 +374,43 @@ class UserController extends Controller
         position: absolute;
         top: 8px;
         right: 8px;
-        background: #3a3a3a;
-        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         color: #d4d4d4;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.75rem;
+        border-radius: 5px;
+        font-size: 0.7rem;
+        line-height: 1;
         cursor: pointer;
-        opacity: 0;
-        transition: opacity 0.2s;
+        opacity: 0.7;
+        transition: opacity 0.2s, background 0.2s, border-color 0.2s, color 0.2s, transform 0.1s;
     }
     .code-block:hover .btn-copy {
         opacity: 1;
     }
     .btn-copy:hover {
-        background: #4a4a4a;
+        background: rgba(255, 255, 255, 0.18);
+        border-color: rgba(255, 255, 255, 0.35);
+        color: #fff;
+    }
+    .btn-copy:active {
+        transform: scale(0.92);
+    }
+    .btn-copy.copied {
+        background: #198754;
+        border-color: #198754;
+        color: #fff;
+        opacity: 1;
+    }
+    .btn-copy.error {
+        background: #dc3545;
+        border-color: #dc3545;
+        color: #fff;
+        opacity: 1;
     }
     .sticky-top {
         z-index: 1;
@@ -401,14 +423,55 @@ class UserController extends Controller
     function copyCode(btn) {
         const codeBlock = btn.closest('.code-block');
         const code = codeBlock.querySelector('code, pre');
-        const text = code.textContent || code.innerText;
+        const text = (code.textContent || code.innerText).trim();
 
-        navigator.clipboard.writeText(text).then(() => {
-            btn.innerHTML = '<i class="bi bi-check"></i>';
-            setTimeout(() => {
-                btn.innerHTML = '<i class="bi bi-clipboard"></i>';
-            }, 2000);
+        copyText(text)
+            .then(() => showCopied(btn))
+            .catch(() => showCopyError(btn));
+    }
+
+    function copyText(text) {
+        // Use the async Clipboard API when available (HTTPS / localhost only)
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text);
+        }
+
+        // Fallback for insecure (http) contexts
+        return new Promise((resolve, reject) => {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.top = '-9999px';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy') ? resolve() : reject();
+            } catch (err) {
+                reject(err);
+            } finally {
+                document.body.removeChild(textarea);
+            }
         });
+    }
+
+    function showCopied(btn) {
+        btn.classList.add('copied');
+        btn.innerHTML = '<i class="bi bi-check2"></i>';
+        setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+        }, 2000);
+    }
+
+    function showCopyError(btn) {
+        btn.classList.add('error');
+        btn.innerHTML = '<i class="bi bi-x-lg"></i>';
+        setTimeout(() => {
+            btn.classList.remove('error');
+            btn.innerHTML = '<i class="bi bi-clipboard"></i>';
+        }, 2000);
     }
 
     document.querySelectorAll('.nav-docs .nav-link').forEach(link => {
