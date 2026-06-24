@@ -2,60 +2,71 @@
 
 @section('content')
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3">Menus</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h4 class="mb-0">
+                <i class="bi bi-menu-button-wide text-primary me-2"></i>Menus
+            </h4>
+            <p class="text-muted small mb-0">Manage navigation menus and sub-menus</p>
+        </div>
         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createMenuModal">
-            Add New Menu
+            <i class="bi bi-plus-lg me-1"></i>Add New Menu
         </button>
     </div>
 
-    <div class="table-responsive">
-        <form action="" method="get">
-            @csrf
-            <input type="text" name="search" id="search" class="form-control mb-3" placeholder="Search" value="{{ request('search') }}">
-        </form>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form action="" method="get" class="mb-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" id="search" class="form-control" placeholder="Search menus..." value="{{ request('search') }}">
+                    @if (request('search'))
+                        <a href="{{ route('acl.menus.index') }}" class="btn btn-outline-secondary" title="Clear"><i class="bi bi-x-lg"></i></a>
+                    @endif
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Search</button>
+                </div>
+            </form>
 
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Title</th>
-                    <th>Parent Menu</th>
-                    <th>Route Name</th>
-                    <th>Menu Icon</th>
-                    <th>Menu Order</th>
-                    <th>Active</th>
-                    <th class="text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Title</th>
+                            <th>Parent Menu</th>
+                            <th>Route Name</th>
+                            <th>Menu Icon</th>
+                            <th class="text-center">Order</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                 @forelse ($menus as $menu)
                     <tr>
-                        <td style="border-left: {{ !$menu->parent_menu_id ? '3px' : '0px' }} solid green;">{{ $menu->title }}</td>
+                        <td class="fw-medium" style="border-left: {{ !$menu->parent_menu_id ? '3px' : '0px' }} solid var(--bs-success);">{{ $menu->title }}</td>
                         <td>{{ $menu->parent_menu ? $menu->parent_menu->title : '-' }}</td>
-                        <td>{{ $menu->route_name }}</td>
-                        <td>{{ $menu->menu_icon }}</td>
-                        <td>{{ $menu->menu_order }}</td>
-                        <td>
+                        <td>@if ($menu->route_name)<code>{{ $menu->route_name }}</code>@else <span class="text-muted">-</span>@endif</td>
+                        <td>@if ($menu->menu_icon)<i class="{{ $menu->menu_icon }}"></i> <span class="text-muted small">{{ $menu->menu_icon }}</span>@else <span class="text-muted">-</span>@endif</td>
+                        <td class="text-center">{{ $menu->menu_order }}</td>
+                        <td class="text-center">
                             @if ($menu->is_active)
-                                <span class="badge bg-success ">
-                                    <i class="bi bi-check-circle"></i>
-                                </span>
+                                <span class="badge bg-success-subtle text-success-emphasis"><i class="bi bi-check-circle me-1"></i>Active</span>
                             @else
-                                <span class="badge bg-danger">
-                                    <i class="bi bi-x-circle"></i>
-                                </span>
+                                <span class="badge bg-secondary-subtle text-secondary-emphasis"><i class="bi bi-x-circle me-1"></i>Inactive</span>
                             @endif
                         </td>
-                        <td class="d-flex gap-1 justify-content-center">
-                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#updateModal_{{ $menu->id }}"><i class="bi bi-pencil"></i></button>
+                        <td>
+                            <div class="d-flex gap-1 justify-content-center">
+                                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#updateModal_{{ $menu->id }}" title="Edit"><i class="bi bi-pencil"></i></button>
 
-                            <form action="{{ route('acl.menus.destroy', ['menu' => $menu->id]) }}" method="POST" id="delete_menu_form_{{ $menu->id }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" name="" id="" class="btn btn-sm btn-danger" value="Delete" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this menu?')) { document.getElementById('delete_menu_form_{{ $menu->id }}').submit(); }">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                                <form action="{{ route('acl.menus.destroy', ['menu' => $menu->id]) }}" method="POST" id="delete_menu_form_{{ $menu->id }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this menu?')) { document.getElementById('delete_menu_form_{{ $menu->id }}').submit(); }">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
 
@@ -114,11 +125,16 @@
                     </div>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center">No Menus found.</td>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox d-block fs-3 mb-2"></i>
+                            No Menus found.
+                        </td>
                     </tr>
                 @endforelse
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
 

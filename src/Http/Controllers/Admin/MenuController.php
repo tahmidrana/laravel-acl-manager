@@ -5,6 +5,7 @@ namespace Tahmid\AclManager\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Tahmid\AclManager\Models\ActivityLog;
 use Tahmid\AclManager\Models\Menu;
 use Tahmid\AclManager\Models\Role;
 
@@ -52,7 +53,9 @@ class MenuController extends Controller
             }
 
             $validated['menu_order'] = $menu_order;
-            Menu::create($validated);
+            $menu = Menu::create($validated);
+
+            ActivityLog::record('menu.created', "Created menu '{$menu->title}'");
 
             return back()->withSuccess('Menu saved successfully');
         } catch (\Exception $e) {
@@ -74,6 +77,8 @@ class MenuController extends Controller
         try {
             $menu->update($validated);
 
+            ActivityLog::record('menu.updated', "Updated menu '{$menu->title}'");
+
             return back()->withSuccess('Menu updated successfully');
         } catch (\Exception $e) {
             return back()->withError($e->getMessage());
@@ -83,7 +88,11 @@ class MenuController extends Controller
     public function destroy(Menu $menu)
     {
         try {
+            $title = $menu->title;
             $menu->delete();
+
+            ActivityLog::record('menu.deleted', "Deleted menu '{$title}'");
+
             return back()->withSuccess('Menu deleted successfully');
         } catch (\Exception $e) {
             return back()->withError($e->getMessage());

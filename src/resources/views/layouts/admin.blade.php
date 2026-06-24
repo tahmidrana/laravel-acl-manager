@@ -11,7 +11,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
-            <a class="navbar-brand" href="#">ACL Admin</a>
+            <a class="navbar-brand" href="{{ route('acl.index') }}">ACL Admin</a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                 <span class="navbar-toggler-icon"></span>
@@ -22,6 +22,7 @@
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('acl.roles.*') ? 'active' : '' }}" href="{{ route('acl.roles.index') }}">Roles</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('acl.permissions.*') ? 'active' : '' }}" href="{{ route('acl.permissions.index') }}">Permissions</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('acl.menus.*') ? 'active' : '' }}" href="{{ route('acl.menus.index') }}">Menus</a></li>
+                    <li class="nav-item"><a class="nav-link {{ request()->routeIs('acl.activity-logs.*') ? 'active' : '' }}" href="{{ route('acl.activity-logs.index') }}">Activity Log</a></li>
                 </ul>
 
                 <ul class="navbar-nav ms-auto">

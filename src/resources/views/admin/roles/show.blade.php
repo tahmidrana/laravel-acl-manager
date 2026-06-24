@@ -16,47 +16,39 @@
     </div>
 
     <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-whites py-3">
+        <div class="card-header bg-white py-3">
             <h5 class="mb-0">
                 <i class="bi bi-person-badge text-primary me-2"></i>
                 Role Details
             </h5>
         </div>
         <div class="card-body">
-            <table class="table table-borderless mb-0">
-                <tbody>
-                    <tr>
-                        <th style="width: 18%;">Title</th>
-                        <td>{{ $role->title }}</td>
-                    </tr>
-                    <tr>
-                        <th>Slug</th>
-                        <td>{{ $role->slug }}</td>
-                    </tr>
-                    <tr>
-                        <th>Permissions Count</th>
-                        <td>{{ $role->permissions()->count() }}</td>
-                    </tr>
-                    <tr>
-                        <th>Menu Count</th>
-                        <td>{{ $role->menus()->count() }}</td>
-                    </tr>
-                    <tr>
-                        <th>Active</th>
-                        <td>
-                            @if ($role->is_active)
-                                <span class="badge bg-success">
-                                    <i class="bi bi-check-circle me-1"></i>Active
-                                </span>
-                            @else
-                                <span class="badge bg-secondary">
-                                    <i class="bi bi-x-circle me-1"></i>Inactive
-                                </span>
-                            @endif
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="row g-3">
+                <div class="col-md-3 col-6">
+                    <div class="text-muted small text-uppercase">Title</div>
+                    <div class="fw-semibold">{{ $role->title }}</div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="text-muted small text-uppercase">Slug</div>
+                    <div><code>{{ $role->slug }}</code></div>
+                </div>
+                <div class="col-md-2 col-4">
+                    <div class="text-muted small text-uppercase">Permissions</div>
+                    <span class="badge bg-primary-subtle text-primary-emphasis">{{ $role->permissions()->count() }}</span>
+                </div>
+                <div class="col-md-2 col-4">
+                    <div class="text-muted small text-uppercase">Menus</div>
+                    <span class="badge bg-info-subtle text-info-emphasis">{{ $role->menus()->count() }}</span>
+                </div>
+                <div class="col-md-2 col-4">
+                    <div class="text-muted small text-uppercase">Status</div>
+                    @if ($role->is_active)
+                        <span class="badge bg-success-subtle text-success-emphasis"><i class="bi bi-check-circle me-1"></i>Active</span>
+                    @else
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis"><i class="bi bi-x-circle me-1"></i>Inactive</span>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 
@@ -79,34 +71,43 @@
             <form action="{{ route('acl.roles.save-role-menus', ['role' => $role->id]) }}" method="POST">
                 @csrf
                 @method('put')
-                <div class="">
+                <div class="row g-4">
                     @forelse ($menus as $menu)
                         @if (!$menu->parent_menu_id)
-                            <div class="mb-2">
-                                <label for="role_menu{{ $menu->id }}" class="mb-2">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-check mb-2">
                                     <input type="checkbox" name="role_menus[]" value="{{ $menu->id }}"
-                                        class="js-menu-parent" data-menu-group="{{ $menu->id }}"
+                                        class="form-check-input js-menu-parent" data-menu-group="{{ $menu->id }}"
                                         id="role_menu{{ $menu->id }}"
                                         {{ $user_type_menus->contains($menu->id) ? 'checked' : '' }}>
-                                    {{ $menu->title }}
-                                </label>
-                                @foreach ($menus as $ch_menu)
-                                    @if ($ch_menu->parent_menu_id == $menu->id)
-                                        <div class="ms-4 mb-2">
-                                            <label for="role_menu{{ $ch_menu->id }}">
-                                                <input type="checkbox" name="role_menus[]" value="{{ $ch_menu->id }}"
-                                                    class="js-menu-child" data-menu-group="{{ $menu->id }}"
-                                                    id="role_menu{{ $ch_menu->id }}"
-                                                    {{ $user_type_menus->contains($ch_menu->id) ? 'checked' : '' }}>
-                                                {{ $ch_menu->title }}
-                                            </label>
-                                        </div>
-                                    @endif
-                                @endforeach
+                                    <label class="form-check-label fw-semibold" for="role_menu{{ $menu->id }}">
+                                        {{ $menu->title }}
+                                        <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1">#{{ $menu->menu_order }}</span>
+                                    </label>
+                                </div>
+                                @php $has_children = $menus->where('parent_menu_id', $menu->id)->count(); @endphp
+                                @if ($has_children)
+                                    <div class="ms-4 d-flex flex-column gap-2">
+                                        @foreach ($menus as $ch_menu)
+                                            @if ($ch_menu->parent_menu_id == $menu->id)
+                                                <div class="form-check mb-0">
+                                                    <input type="checkbox" name="role_menus[]" value="{{ $ch_menu->id }}"
+                                                        class="form-check-input js-menu-child" data-menu-group="{{ $menu->id }}"
+                                                        id="role_menu{{ $ch_menu->id }}"
+                                                        {{ $user_type_menus->contains($ch_menu->id) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="role_menu{{ $ch_menu->id }}">
+                                                        {{ $ch_menu->title }}
+                                                        <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1">#{{ $ch_menu->menu_order }}</span>
+                                                    </label>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         @endif
                     @empty
-                        <p>No menus found.</p>
+                        <div class="col-12"><p class="text-muted mb-0">No menus found.</p></div>
                     @endforelse
                 </div>
                 @if ($menus->count())
@@ -143,40 +144,42 @@
                 @method('put')
 
                 <div>
-                    <div class="row">
-                        @forelse ($permissions as $controller => $perm_arr)
-                            @php $group = $loop->index; @endphp
-                            <div class="col-12 mb-3">
-                                <label class="mb-1" style="cursor: pointer;">
-                                    <input type="checkbox" class="js-controller-check" data-group="{{ $group }}"
-                                        name="checked_controllers[]" value="{{ $controller }}">
-                                    <b>* <span style="text-decoration: underline;">{{ $controller }}:</span></b>
-                                </label>
-
-                                <div class="row mt-2 mb-3 ms-5">
+                    @forelse ($permissions as $controller => $perm_arr)
+                        @php $group = $loop->index; @endphp
+                        <div class="border rounded mb-3">
+                            <div class="bg-light px-3 py-2 border-bottom">
+                                <div class="form-check mb-0">
+                                    <input type="checkbox" class="form-check-input js-controller-check" data-group="{{ $group }}"
+                                        name="checked_controllers[]" value="{{ $controller }}" id="controller_{{ $group }}">
+                                    <label class="form-check-label fw-semibold" for="controller_{{ $group }}">
+                                        {{ $controller }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <div class="row g-3">
                                     @foreach ($perm_arr as $perm)
-                                        <div class="col-4">
-                                            <label for="role_permission{{ $perm->id }}" class="mb-3">
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="form-check">
                                                 <input type="checkbox" name="role_permissions[]"
-                                                    class="js-method-check" data-group="{{ $group }}"
+                                                    class="form-check-input js-method-check" data-group="{{ $group }}"
                                                     value="{{ $perm->id }}" id="role_permission{{ $perm->id }}"
                                                     {{ $user_type_permissions->contains($perm->id) ? 'checked' : '' }}>
-                                                {{ ucfirst(\Str::of($perm->name)->explode('@')[1] ?? \Str::of($perm->name)->explode('@')[0]) }}
-
-                                                @if ($perm->description)
-                                                    <p class="text-primary">-> {{ $perm->description }}</p>
-                                                @endif
-                                            </label>
-
+                                                <label class="form-check-label" for="role_permission{{ $perm->id }}">
+                                                    {{ ucfirst(\Str::of($perm->name)->explode('@')[1] ?? \Str::of($perm->name)->explode('@')[0]) }}
+                                                    @if ($perm->description)
+                                                        <span class="d-block text-muted small">{{ $perm->description }}</span>
+                                                    @endif
+                                                </label>
+                                            </div>
                                         </div>
                                     @endforeach
                                 </div>
-
                             </div>
-                        @empty
-                            <p>No permissions found.</p>
-                        @endforelse
-                    </div>
+                        </div>
+                    @empty
+                        <p class="text-muted mb-0">No permissions found.</p>
+                    @endforelse
                 </div>
                 @if ($permissions->count())
                     <div class="mt-3 pt-2 border-top">

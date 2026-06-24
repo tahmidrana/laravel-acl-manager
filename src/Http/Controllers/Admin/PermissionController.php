@@ -6,6 +6,7 @@ use Tahmid\AclManager\Attributes\PermissionAttr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Tahmid\AclManager\Models\ActivityLog;
 use Tahmid\AclManager\Models\Permission;
 use ReflectionMethod;
 
@@ -62,7 +63,9 @@ class PermissionController extends Controller
 
         $validated['slug'] = \Str::of($validated['name'])->slug('-');
 
-        Permission::create($validated);
+        $permission = Permission::create($validated);
+
+        ActivityLog::record('permission.created', "Created permission '{$permission->name}'");
 
         return back()->with('success', 'Permission created successfully.');
     }
@@ -78,12 +81,18 @@ class PermissionController extends Controller
 
         $permission->update($validated);
 
+        ActivityLog::record('permission.updated', "Updated permission '{$permission->name}'");
+
         return back()->with('success', 'Permission updated successfully.');
     }
 
     public function destroy(Permission $permission)
     {
+        $name = $permission->name;
         $permission->delete();
+
+        ActivityLog::record('permission.deleted', "Deleted permission '{$name}'");
+
         return back()->with('success', 'Permission deleted successfully.');
     }
 
@@ -186,6 +195,8 @@ class PermissionController extends Controller
                 Permission::insert(array_values($permissions));
             }
 
+            ActivityLog::record('permission.synced', 'Synced ' . count($permissions) . ' new permission(s) from controllers');
+
             session()->flash('success', 'Successfully synced permissions');
         } catch (\Throwable $th) {
             \Log::error($th);
@@ -249,6 +260,8 @@ class PermissionController extends Controller
                 ]);
             }
         }
+
+        ActivityLog::record('permission.controller_synced', "Resynced methods for controller '{$controller_name}'");
 
         return back()->withSuccess('Controller permission synced successfully');
     }

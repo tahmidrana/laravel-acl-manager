@@ -6,6 +6,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Tahmid\AclManager\Models\ActivityLog;
 use Tahmid\AclManager\Models\Menu;
 use Tahmid\AclManager\Models\Permission;
 use Tahmid\AclManager\Models\Role;
@@ -28,7 +29,9 @@ class RoleController extends Controller
 
         $validated['slug'] = Str::of($validated['title'])->slug('-');
 
-        Role::create($validated);
+        $role = Role::create($validated);
+
+        ActivityLog::record('role.created', "Created role '{$role->title}'");
 
         return back()->with('success', 'Role created successfully.');
     }
@@ -43,12 +46,18 @@ class RoleController extends Controller
 
         $role->update($validated);
 
+        ActivityLog::record('role.updated', "Updated role '{$role->title}'");
+
         return back()->with('success', 'Role updated successfully.');
     }
 
     public function destroy(Role $role)
     {
+        $title = $role->title;
         $role->delete();
+
+        ActivityLog::record('role.deleted', "Deleted role '{$title}'");
+
         return back()->with('success', 'Role deleted successfully.');
     }
 
@@ -99,6 +108,9 @@ class RoleController extends Controller
                 ->all();
 
             $role->menus()->sync($menuIds);
+
+            ActivityLog::record('role.menus_updated', "Updated menus for role '{$role->title}'");
+
             session()->flash('success', 'Success! Successfully Updated!');
         } catch (\Exception $e) {
             Log::error($e);
@@ -131,6 +143,8 @@ class RoleController extends Controller
                 ->all();
 
             $role->permissions()->sync($permissionIds);
+
+            ActivityLog::record('role.permissions_updated', "Updated permissions for role '{$role->title}'");
 
             session()->flash('success', 'Success! Successfully Updated!');
         } catch (\Exception $e) {
