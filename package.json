@@ -1,0 +1,13 @@
+{
+    "name": "tahmid-acl-manager-assets",
+    "private": true,
+    "description": "Front-end build tooling for the Laravel ACL Manager admin panel (Tailwind CSS). The compiled stylesheet in src/public/css/acl.css is committed and shipped; consumers do not need to build anything.",
+    "scripts": {
+        "build:css": "tailwindcss -c ./tailwind.config.js -i ./src/resources/css/acl.css -o ./src/public/css/acl.css --minify",
+        "watch:css": "tailwindcss -c ./tailwind.config.js -i ./src/resources/css/acl.css -o ./src/public/css/acl.css --watch"
+    },
+    "devDependencies": {
+        "@tailwindcss/forms": "^0.5.0",
+        "tailwindcss": "^3.4.0"
+    }
+}

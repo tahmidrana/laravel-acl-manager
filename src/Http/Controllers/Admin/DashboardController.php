@@ -3,6 +3,7 @@
 namespace Tahmid\AclManager\Http\Controllers\Admin;
 
 use Illuminate\Routing\Controller;
+use Tahmid\AclManager\Models\ActivityLog;
 use Tahmid\AclManager\Models\Menu;
 use Tahmid\AclManager\Models\Permission;
 use Tahmid\AclManager\Models\Role;
@@ -18,8 +19,8 @@ class DashboardController extends Controller
             'menus' => Menu::count(),
         ];
 
-        $recent_roles = Role::latest('id')->take(5)->get();
+        $recent_logs = ActivityLog::latest('id')->take(6)->get();
 
-        return view('acl::admin.dashboard', compact('stats', 'recent_roles'));
+        return view('acl::admin.dashboard', compact('stats', 'recent_logs'));
     }
 }

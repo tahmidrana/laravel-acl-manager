@@ -2,102 +2,104 @@
 
 @section('content')
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-            <h4 class="mb-0">
-                <i class="bi bi-shield-check text-primary me-2"></i>
+            <h1 class="flex items-center gap-2 text-xl font-semibold text-slate-900">
+                <svg class="h-6 w-6 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
                 Role Configuration
-            </h4>
-            <p class="text-muted small mb-0">Manage role details, menus, and permissions</p>
+            </h1>
+            <p class="mt-1 text-sm text-slate-500">Manage role details, menus, and permissions</p>
         </div>
-        <a href="{{ route('acl.roles.index') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left"></i> Back to Roles
+        <a href="{{ route('acl.roles.index') }}" class="acl-btn acl-btn-sm acl-btn-secondary">
+            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+            Back to Roles
         </a>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white py-3">
-            <h5 class="mb-0">
-                <i class="bi bi-person-badge text-primary me-2"></i>
-                Role Details
-            </h5>
+    {{-- Role details --}}
+    <div class="acl-card mb-6">
+        <div class="flex items-center gap-2 border-b border-slate-200 px-5 py-4">
+            <svg class="h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+            <h2 class="font-semibold text-slate-900">Role Details</h2>
         </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-3 col-6">
-                    <div class="text-muted small text-uppercase">Title</div>
-                    <div class="fw-semibold">{{ $role->title }}</div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="text-muted small text-uppercase">Slug</div>
-                    <div><code>{{ $role->slug }}</code></div>
-                </div>
-                <div class="col-md-2 col-4">
-                    <div class="text-muted small text-uppercase">Permissions</div>
-                    <span class="badge bg-primary-subtle text-primary-emphasis">{{ $role->permissions()->count() }}</span>
-                </div>
-                <div class="col-md-2 col-4">
-                    <div class="text-muted small text-uppercase">Menus</div>
-                    <span class="badge bg-info-subtle text-info-emphasis">{{ $role->menus()->count() }}</span>
-                </div>
-                <div class="col-md-2 col-4">
-                    <div class="text-muted small text-uppercase">Status</div>
+        <div class="grid grid-cols-2 gap-4 px-5 py-4 sm:grid-cols-3 lg:grid-cols-5">
+            <div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Title</div>
+                <div class="mt-1 font-semibold text-slate-800">{{ $role->title }}</div>
+            </div>
+            <div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Slug</div>
+                <div class="mt-1"><code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-700">{{ $role->slug }}</code></div>
+            </div>
+            <div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Permissions</div>
+                <div class="mt-1"><span class="acl-badge acl-badge-info">{{ $role->permissions()->count() }}</span></div>
+            </div>
+            <div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Menus</div>
+                <div class="mt-1"><span class="acl-badge acl-badge-info">{{ $role->menus()->count() }}</span></div>
+            </div>
+            <div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Status</div>
+                <div class="mt-1">
                     @if ($role->is_active)
-                        <span class="badge bg-success-subtle text-success-emphasis"><i class="bi bi-check-circle me-1"></i>Active</span>
+                        <span class="acl-badge acl-badge-success">Active</span>
                     @else
-                        <span class="badge bg-secondary-subtle text-secondary-emphasis"><i class="bi bi-x-circle me-1"></i>Inactive</span>
+                        <span class="acl-badge acl-badge-muted">Inactive</span>
                     @endif
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center py-3">
-            <h5 class="card-titles mb-0">
-                <i class="bi bi-menu-button-wide text-primary me-2"></i>
+    {{-- Web menus --}}
+    <div class="acl-card mb-6">
+        <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <h2 class="flex items-center gap-2 font-semibold text-slate-900">
+                <svg class="h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
+                </svg>
                 Web Menus
-                <span class="text-muted fs-6">({{ $role->title }})</span>
-            </h5>
-            {{-- <div class="card-toolbar">
-                <label for="role_menus_check_all" class="ml-3">
-                    <input type="checkbox" name="role_menus_check_all" id="role_menus_check_all"
-                        onclick="for(c in document.getElementsByName('role_menus[]')) document.getElementsByName('role_menus[]').item(c).checked = this.checked">
-                    Check All
-                </label>
-            </div> --}}
+                <span class="text-sm font-normal text-slate-400">({{ $role->title }})</span>
+            </h2>
         </div>
-        <div class="card-body">
+        <div class="px-5 py-4">
             <form action="{{ route('acl.roles.save-role-menus', ['role' => $role->id]) }}" method="POST">
                 @csrf
                 @method('put')
-                <div class="row g-4">
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                     @forelse ($menus as $menu)
                         @if (!$menu->parent_menu_id)
-                            <div class="col-lg-4 col-md-6">
-                                <div class="form-check mb-2">
+                            <div class="rounded-lg border border-slate-200 p-4">
+                                <div class="flex items-start gap-2">
                                     <input type="checkbox" name="role_menus[]" value="{{ $menu->id }}"
-                                        class="form-check-input js-menu-parent" data-menu-group="{{ $menu->id }}"
+                                        class="acl-checkbox mt-0.5 js-menu-parent" data-menu-group="{{ $menu->id }}"
                                         id="role_menu{{ $menu->id }}"
                                         {{ $user_type_menus->contains($menu->id) ? 'checked' : '' }}>
-                                    <label class="form-check-label fw-semibold" for="role_menu{{ $menu->id }}">
+                                    <label class="flex items-center gap-1.5 text-sm font-semibold text-slate-800" for="role_menu{{ $menu->id }}">
                                         {{ $menu->title }}
-                                        <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1">#{{ $menu->menu_order }}</span>
+                                        <span class="acl-badge acl-badge-muted">#{{ $menu->menu_order }}</span>
                                     </label>
                                 </div>
                                 @php $has_children = $menus->where('parent_menu_id', $menu->id)->count(); @endphp
                                 @if ($has_children)
-                                    <div class="ms-4 d-flex flex-column gap-2">
+                                    <div class="ml-6 mt-3 flex flex-col gap-2">
                                         @foreach ($menus as $ch_menu)
                                             @if ($ch_menu->parent_menu_id == $menu->id)
-                                                <div class="form-check mb-0">
+                                                <div class="flex items-start gap-2">
                                                     <input type="checkbox" name="role_menus[]" value="{{ $ch_menu->id }}"
-                                                        class="form-check-input js-menu-child" data-menu-group="{{ $menu->id }}"
+                                                        class="acl-checkbox mt-0.5 js-menu-child" data-menu-group="{{ $menu->id }}"
                                                         id="role_menu{{ $ch_menu->id }}"
                                                         {{ $user_type_menus->contains($ch_menu->id) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="role_menu{{ $ch_menu->id }}">
+                                                    <label class="flex items-center gap-1.5 text-sm text-slate-600" for="role_menu{{ $ch_menu->id }}">
                                                         {{ $ch_menu->title }}
-                                                        <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1">#{{ $ch_menu->menu_order }}</span>
+                                                        <span class="acl-badge acl-badge-muted">#{{ $ch_menu->menu_order }}</span>
                                                     </label>
                                                 </div>
                                             @endif
@@ -107,13 +109,16 @@
                             </div>
                         @endif
                     @empty
-                        <div class="col-12"><p class="text-muted mb-0">No menus found.</p></div>
+                        <div class="col-span-full"><p class="text-sm text-slate-500">No menus found.</p></div>
                     @endforelse
                 </div>
                 @if ($menus->count())
-                    <div class="mt-3 pt-2 border-top">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save me-2"></i>Save
+                    <div class="mt-5 border-t border-slate-200 pt-4">
+                        <button type="submit" class="acl-btn acl-btn-primary">
+                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3" />
+                            </svg>
+                            Save
                         </button>
                     </div>
                 @endif
@@ -121,70 +126,65 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center py-3">
-            <h5 class="card-titles mb-0">
-                <i class="bi bi-key text-primary me-2"></i>
+    {{-- Permissions --}}
+    <div class="acl-card mb-6">
+        <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <h2 class="flex items-center gap-2 font-semibold text-slate-900">
+                <svg class="h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                </svg>
                 Permissions
-                <span class="text-muted fs-6">({{ $role->title }})</span>
-            </h5>
-            {{-- <div class="card-toolbar">
-                <label for="role_permission_check_all" class="ml-3">
-                    <input type="checkbox" name="role_permission_check_all" id="role_permission_check_all"
-                        onclick="for(c in document.getElementsByName('role_permissions[]')) document.getElementsByName('role_permissions[]').item(c).checked = this.checked">
-                    Check All
-                </label>
-            </div> --}}
+                <span class="text-sm font-normal text-slate-400">({{ $role->title }})</span>
+            </h2>
         </div>
-
-        <div class="card-body">
-
+        <div class="px-5 py-4">
             <form action="{{ route('acl.roles.save-role-permissions', ['role' => $role->id]) }}" method="POST">
                 @csrf
                 @method('put')
 
-                <div>
+                <div class="space-y-4">
                     @forelse ($permissions as $controller => $perm_arr)
                         @php $group = $loop->index; @endphp
-                        <div class="border rounded mb-3">
-                            <div class="bg-light px-3 py-2 border-bottom">
-                                <div class="form-check mb-0">
-                                    <input type="checkbox" class="form-check-input js-controller-check" data-group="{{ $group }}"
+                        <div class="overflow-hidden rounded-lg border border-slate-200">
+                            <div class="border-b border-slate-200 bg-slate-50 px-4 py-2.5">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" class="acl-checkbox js-controller-check" data-group="{{ $group }}"
                                         name="checked_controllers[]" value="{{ $controller }}" id="controller_{{ $group }}">
-                                    <label class="form-check-label fw-semibold" for="controller_{{ $group }}">
+                                    <label class="text-sm font-semibold text-slate-800" for="controller_{{ $group }}">
                                         {{ $controller }}
                                     </label>
                                 </div>
                             </div>
-                            <div class="p-3">
-                                <div class="row g-3">
+                            <div class="p-4">
+                                <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                                     @foreach ($perm_arr as $perm)
-                                        <div class="col-lg-4 col-md-6">
-                                            <div class="form-check">
-                                                <input type="checkbox" name="role_permissions[]"
-                                                    class="form-check-input js-method-check" data-group="{{ $group }}"
-                                                    value="{{ $perm->id }}" id="role_permission{{ $perm->id }}"
-                                                    {{ $user_type_permissions->contains($perm->id) ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="role_permission{{ $perm->id }}">
-                                                    {{ ucfirst(\Str::of($perm->name)->explode('@')[1] ?? \Str::of($perm->name)->explode('@')[0]) }}
-                                                    @if ($perm->description)
-                                                        <span class="d-block text-muted small">{{ $perm->description }}</span>
-                                                    @endif
-                                                </label>
-                                            </div>
+                                        <div class="flex items-start gap-2">
+                                            <input type="checkbox" name="role_permissions[]"
+                                                class="acl-checkbox mt-0.5 js-method-check" data-group="{{ $group }}"
+                                                value="{{ $perm->id }}" id="role_permission{{ $perm->id }}"
+                                                {{ $user_type_permissions->contains($perm->id) ? 'checked' : '' }}>
+                                            <label class="text-sm text-slate-600" for="role_permission{{ $perm->id }}">
+                                                {{ ucfirst(\Str::of($perm->name)->explode('@')[1] ?? \Str::of($perm->name)->explode('@')[0]) }}
+                                                @if ($perm->description)
+                                                    <span class="block text-xs text-slate-400">{{ $perm->description }}</span>
+                                                @endif
+                                            </label>
                                         </div>
                                     @endforeach
                                 </div>
                             </div>
                         </div>
                     @empty
-                        <p class="text-muted mb-0">No permissions found.</p>
+                        <p class="text-sm text-slate-500">No permissions found.</p>
                     @endforelse
                 </div>
                 @if ($permissions->count())
-                    <div class="mt-3 pt-2 border-top">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save me-2"></i>Save
+                    <div class="mt-5 border-t border-slate-200 pt-4">
+                        <button type="submit" class="acl-btn acl-btn-primary">
+                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3" />
+                            </svg>
+                            Save
                         </button>
                     </div>
                 @endif
