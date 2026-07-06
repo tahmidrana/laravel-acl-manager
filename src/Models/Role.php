@@ -8,7 +8,9 @@ class Role extends Model
 {
     // use SoftDeletes;
 
-    protected $fillable = ['title', 'slug'];
+    protected $fillable = ['title', 'slug', 'remarks', 'is_active'];
+
+    protected $casts = ['is_active' => 'boolean'];
 
     public function permissions()
     {

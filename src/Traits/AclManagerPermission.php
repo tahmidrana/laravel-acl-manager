@@ -18,7 +18,7 @@ trait AclManagerPermission
         if ($this->{config('acl.superuser_column', 'is_superuser')}) {
             $query = Menu::query();
         } else {
-            $roleIds = $this->roles()->wherePivot('is_active', true)->wherePivotNull('released_at')->pluck('roles.id');
+            $roleIds = $this->roles()->where('roles.is_active', true)->wherePivot('is_active', true)->wherePivotNull('released_at')->pluck('roles.id');
 
             $query = Menu::whereHas('roles', function ($q) use ($roleIds) {
                 $q->whereIn('roles.id', $roleIds);
@@ -49,9 +49,13 @@ trait AclManagerPermission
         $slug = strtolower($slug);
 
         return $this->roles()
+            ->where('roles.is_active', true)
             ->wherePivot('is_active', true)
             ->wherePivotNull('released_at')
-            ->whereHas('permissions', fn ($q) => $q->where('slug', $slug)->orWhere('name', $slug))
+            ->whereHas('permissions', function ($q) use ($slug) {
+                $q->where('permissions.is_active', true)
+                    ->where(fn ($sub) => $sub->where('slug', $slug)->orWhere('name', $slug));
+            })
             ->exists();
     }
 }

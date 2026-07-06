@@ -29,9 +29,10 @@ class AccessControl
         $permissionSlug = strtolower($permissionSlug);
 
         return \Tahmid\AclManager\Models\Role::where('slug', $roleSlug)
+            ->where('is_active', true)
             ->whereHas('permissions', function ($q) use ($permissionSlug) {
-                $q->where('slug', $permissionSlug)
-                    ->orWhere('name', $permissionSlug);
+                $q->where('permissions.is_active', true)
+                    ->where(fn ($sub) => $sub->where('slug', $permissionSlug)->orWhere('name', $permissionSlug));
             })->exists();
     }
 
@@ -65,6 +66,7 @@ class AccessControl
             $query = Menu::query();
         } else {
             $roleIds = $user->roles()
+                ->where('roles.is_active', true)
                 ->wherePivot('is_active', true)
                 ->wherePivotNull('released_at')
                 ->pluck('roles.id');
