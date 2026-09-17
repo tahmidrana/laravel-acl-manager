@@ -11,10 +11,12 @@ class ActivityLogController extends Controller
     public function index(Request $request)
     {
         $logs = ActivityLog::query()
-            ->when($request->search, function ($query) use ($request) {
-                $query->where('description', 'like', '%' . $request->search . '%')
-                    ->orWhere('action', 'like', '%' . $request->search . '%')
-                    ->orWhere('user_name', 'like', '%' . $request->search . '%');
+            ->when($request->search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('description', 'like', '%' . $search . '%')
+                        ->orWhere('action', 'like', '%' . $search . '%')
+                        ->orWhere('user_name', 'like', '%' . $search . '%');
+                });
             })
             ->latest('id')
             ->paginate(30);

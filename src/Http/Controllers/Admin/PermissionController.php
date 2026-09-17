@@ -2,22 +2,26 @@
 
 namespace Tahmid\AclManager\Http\Controllers\Admin;
 
-use Tahmid\AclManager\Attributes\PermissionAttr;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use ReflectionMethod;
+use Tahmid\AclManager\Attributes\PermissionAttr;
 use Tahmid\AclManager\Models\ActivityLog;
 use Tahmid\AclManager\Models\Permission;
-use ReflectionMethod;
 
 class PermissionController extends Controller
 {
     public function index()
     {
         $permissions = Permission::query()
-            ->when(request('search'), function ($query) {
-                $query->where('name', 'like', '%' . request('search') . '%')
-                    ->orWhere('slug', 'like', '%' . request('search') . '%');
+            ->when(request('search'), function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('slug', 'like', '%' . $search . '%');
+                });
             })
             ->paginate(15);
 
@@ -61,7 +65,7 @@ class PermissionController extends Controller
             'is_active'  => 'required|in:0,1',
         ]);
 
-        $validated['slug'] = \Str::of($validated['name'])->slug('-');
+        $validated['slug'] = Str::of($validated['name'])->slug('-');
 
         $permission = Permission::create($validated);
 
@@ -123,7 +127,7 @@ class PermissionController extends Controller
 
             // Scan the controllers directory directly so newly added
             // controllers are picked up even when they have no routes yet.
-            foreach (\File::allFiles($controllers_path) as $file) {
+            foreach (File::allFiles($controllers_path) as $file) {
                 if ($file->getExtension() !== 'php') {
                     continue;
                 }
@@ -199,7 +203,7 @@ class PermissionController extends Controller
 
             session()->flash('success', 'Successfully synced permissions');
         } catch (\Throwable $th) {
-            \Log::error($th);
+            Log::error($th);
             session()->flash('error', 'Permission sync failed');
         }
 
@@ -211,8 +215,8 @@ class PermissionController extends Controller
         $controller_name = $permission->controller_name;
 
         if (! $controller_name) {
-            $controller_name = \Str::of($permission->name)->explode('@')[0];
-            /* $method_name = \Str::of($permission->name)->explode('@')[1]; */
+            $controller_name = Str::of($permission->name)->explode('@')[0];
+            /* $method_name = Str::of($permission->name)->explode('@')[1]; */
         }
 
         $class_name = 'App\\Http\\Controllers\\' . $controller_name;
@@ -266,4 +270,21 @@ class PermissionController extends Controller
         return back()->withSuccess('Controller permission synced successfully');
     }
 
+    /**
+     * Permanently remove a permission whose controller or method no longer
+     * exists. Force deleted rather than soft deleted so that syncPermissions(),
+     * which compares against withTrashed() names, can recreate the permission
+     * if the controller is ever restored.
+     */
+    public function destroy_not_exists(Permission $permission)
+    {
+        $name = $permission->name;
+
+        $permission->roles()->detach();
+        $permission->forceDelete();
+
+        ActivityLog::record('permission.deleted', "Deleted stale permission '{$name}'");
+
+        return back()->with('success', 'Stale permission deleted successfully.');
+    }
 }

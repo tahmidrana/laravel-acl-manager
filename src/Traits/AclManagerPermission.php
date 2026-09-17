@@ -4,13 +4,16 @@ namespace Tahmid\AclManager\Traits;
 
 use Tahmid\AclManager\Models\Menu;
 use Tahmid\AclManager\Models\Role;
+use Tahmid\AclManager\Models\RoleUser;
 
 trait AclManagerPermission
 {
     public function roles()
     {
         return $this->belongsToMany(Role::class)
-            ->withTimestamps();
+            ->withPivot('is_primary', 'is_active', 'released_at')
+            ->withTimestamps()
+            ->using(RoleUser::class);
     }
 
     public function menus(bool $activeOnly = true)

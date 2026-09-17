@@ -2,8 +2,10 @@
 
 namespace Tahmid\AclManager;
 
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Tahmid\AclManager\Facades\Acl;
 use Tahmid\AclManager\Http\Middleware\IsSuperuser;
 use Tahmid\AclManager\Http\Middleware\RolePermissionCheck;
 
@@ -22,7 +24,7 @@ class AclManagerServiceProvider extends ServiceProvider
 
         // Blade directive
         Blade::if('acl', function (string $permission) {
-            return \Acl::can($permission);
+            return Acl::can($permission);
         });
 
         $this->registerMiddleware();
@@ -30,6 +32,10 @@ class AclManagerServiceProvider extends ServiceProvider
 
     public function register()
     {
+        // Merge the package defaults so config('acl.*') resolves even when the
+        // consuming app has not published config/acl.php.
+        $this->mergeConfigFrom(__DIR__.'/config/acl.php', 'acl');
+
         $this->app->singleton('acl', function () {
             return new Helpers\AccessControl;
         });

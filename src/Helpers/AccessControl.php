@@ -59,7 +59,7 @@ class AccessControl
         $user = $user ?: auth()->user();
 
         if (! $user) {
-            return collect();
+            return new \Illuminate\Database\Eloquent\Collection;
         }
 
         if ($user->{config('acl.superuser_column', 'is_superuser')}) {

@@ -164,7 +164,7 @@
                                                 value="{{ $perm->id }}" id="role_permission{{ $perm->id }}"
                                                 {{ $user_type_permissions->contains($perm->id) ? 'checked' : '' }}>
                                             <label class="text-sm text-slate-600" for="role_permission{{ $perm->id }}">
-                                                {{ ucfirst(\Str::of($perm->name)->explode('@')[1] ?? \Str::of($perm->name)->explode('@')[0]) }}
+                                                {{ ucfirst(\Illuminate\Support\Str::of($perm->name)->explode('@')[1] ?? \Illuminate\Support\Str::of($perm->name)->explode('@')[0]) }}
                                                 @if ($perm->description)
                                                     <span class="block text-xs text-slate-400">{{ $perm->description }}</span>
                                                 @endif

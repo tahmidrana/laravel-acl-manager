@@ -4,7 +4,9 @@ namespace Tahmid\AclManager\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
+use Tahmid\AclManager\Facades\Acl;
 
 class RolePermissionCheck
 {
@@ -15,7 +17,7 @@ class RolePermissionCheck
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $action = \Route::current()->action['controller'] ?? null;
+        $action = Route::current()->action['controller'] ?? null;
 
         if (! $action || ! str_contains($action, 'Controllers\\')) {
             abort(403, 'Unauthorized');
@@ -23,7 +25,7 @@ class RolePermissionCheck
 
         $action_name = explode('Controllers\\', $action)[1];
 
-        if (! \Acl::can($action_name)) {
+        if (! Acl::can($action_name)) {
             abort(403, 'You do not have permission to access this page');
         }
 
